@@ -96,7 +96,9 @@ CREATE POLICY "Auth manage neighborhoods" ON neighborhoods
 -- Seed Data: Neighborhoods
 -- ===========================================
 INSERT INTO neighborhoods (name, avg_rent_sqft, foot_traffic_score, asian_dining_score, competitor_count) VALUES
+  ('Times Square', 980, 99, 45, 12),
   ('SoHo', 425, 94, 62, 18),
+  ('Koreatown', 390, 88, 92, 35),
   ('Midtown East', 350, 90, 70, 24),
   ('Williamsburg', 322, 82, 58, 14),
   ('East Village', 190, 80, 75, 22),

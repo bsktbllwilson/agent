@@ -2,11 +2,25 @@ import type { Neighborhood, Partner, Guide } from "./types";
 
 export const neighborhoods: Omit<Neighborhood, "id">[] = [
   {
+    name: "Times Square",
+    avg_rent_sqft: 980,
+    foot_traffic_score: 99,
+    asian_dining_score: 45,
+    competitor_count: 12,
+  },
+  {
     name: "SoHo",
     avg_rent_sqft: 425,
     foot_traffic_score: 94,
     asian_dining_score: 62,
     competitor_count: 18,
+  },
+  {
+    name: "Koreatown",
+    avg_rent_sqft: 390,
+    foot_traffic_score: 88,
+    asian_dining_score: 92,
+    competitor_count: 35,
   },
   {
     name: "Midtown East",

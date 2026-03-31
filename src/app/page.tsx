@@ -141,7 +141,7 @@ export default function Home() {
                         <div
                           className="flex h-6 items-center rounded bg-terracotta px-2 text-xs font-medium text-white"
                           style={{
-                            width: `${(n.avg_rent_sqft / 450) * 100}%`,
+                            width: `${(n.avg_rent_sqft / 1050) * 100}%`,
                           }}
                         >
                           ${n.avg_rent_sqft}/sqft
