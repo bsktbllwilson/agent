@@ -57,15 +57,17 @@ export default function DataPage() {
       </div>
 
       {/* Interactive Map */}
-      <Card className="mt-12">
-        <h2 className="font-display text-xl font-semibold">
-          Neighborhood Map
+      <div className="mt-12">
+        <h2 className="font-display text-2xl font-bold">
+          Location Scout
         </h2>
-        <p className="mt-1 mb-4 text-sm text-gray-500">
-          Circle size reflects Asian dining demand. Opacity reflects rent level. Hover for details.
+        <p className="mt-2 mb-6 text-gray-600">
+          Search any NYC address to get estimated foot traffic, Asian dining demand,
+          rent benchmarks, and competitor density. Scores are interpolated from
+          tracked neighborhoods.
         </p>
         <NeighborhoodMap neighborhoods={neighborhoods} />
-      </Card>
+      </div>
 
       {/* Rent Chart */}
       <Card className="mt-12">
