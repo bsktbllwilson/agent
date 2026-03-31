@@ -96,11 +96,15 @@ CREATE POLICY "Auth manage neighborhoods" ON neighborhoods
 -- Seed Data: Neighborhoods
 -- ===========================================
 INSERT INTO neighborhoods (name, avg_rent_sqft, foot_traffic_score, asian_dining_score, competitor_count) VALUES
-  ('SoHo', 145, 92, 65, 18),
-  ('Midtown East', 120, 88, 72, 24),
-  ('Lower East Side', 85, 76, 80, 15),
-  ('Flushing', 55, 70, 95, 42),
-  ('Sunset Park', 42, 58, 88, 28);
+  ('SoHo', 425, 94, 62, 18),
+  ('Midtown East', 350, 90, 70, 24),
+  ('Williamsburg', 322, 82, 58, 14),
+  ('East Village', 190, 80, 75, 22),
+  ('Hell''s Kitchen', 175, 84, 68, 20),
+  ('Lower East Side', 150, 76, 82, 16),
+  ('Chinatown', 110, 74, 96, 38),
+  ('Flushing', 63, 70, 95, 42),
+  ('Sunset Park', 38, 55, 88, 28);
 
 -- ===========================================
 -- Seed Data: Partners

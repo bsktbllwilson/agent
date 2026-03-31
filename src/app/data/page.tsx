@@ -50,7 +50,8 @@ export default function DataPage() {
         <h1 className="mt-2 font-display text-4xl font-bold">NYC Market Data</h1>
         <p className="mt-4 text-gray-600">
           Neighborhood-level benchmarks and market indicators for Asian F&B
-          operators evaluating New York City.
+          operators evaluating New York City. Rent data sourced from REBNY, CBRE,
+          and commercial listing aggregators (H2 2025).
         </p>
       </div>
 
