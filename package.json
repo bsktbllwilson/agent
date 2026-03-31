@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/leaflet": "^1.9.21",
+    "@types/leaflet": "^1.9.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "leaflet": "^1.9.4",
@@ -17,7 +17,7 @@
     "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
-    "react-leaflet": "^5.0.0",
+    "react-leaflet": "^4.2.1",
     "recharts": "^3.8.1",
     "tailwind-merge": "^3.5.0"
   },
