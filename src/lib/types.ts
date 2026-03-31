@@ -38,4 +38,6 @@ export interface Neighborhood {
   foot_traffic_score: number;
   asian_dining_score: number;
   competitor_count: number;
+  lat: number;
+  lng: number;
 }

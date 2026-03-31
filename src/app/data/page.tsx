@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
+import { NeighborhoodMap } from "@/components/neighborhood-map";
 import { neighborhoods } from "@/lib/seed-data";
 import {
   BarChart,
@@ -54,6 +55,17 @@ export default function DataPage() {
           and commercial listing aggregators (H2 2025).
         </p>
       </div>
+
+      {/* Interactive Map */}
+      <Card className="mt-12">
+        <h2 className="font-display text-xl font-semibold">
+          Neighborhood Map
+        </h2>
+        <p className="mt-1 mb-4 text-sm text-gray-500">
+          Circle size reflects Asian dining demand. Opacity reflects rent level. Hover for details.
+        </p>
+        <NeighborhoodMap neighborhoods={neighborhoods} />
+      </Card>
 
       {/* Rent Chart */}
       <Card className="mt-12">

@@ -16,79 +16,90 @@ export const neighborhoods: Omit<Neighborhood, "id">[] = [
   {
     name: "Times Square",
     avg_rent_sqft: 980,
-    foot_traffic_score: 99,  // 58.8M annual riders (2025), highest in system
-    asian_dining_score: 35,  // Tourist chains dominate; low authentic Asian density
+    foot_traffic_score: 99,
+    asian_dining_score: 35,
     competitor_count: 8,
+    lat: 40.7580, lng: -73.9855,
   },
   {
     name: "SoHo",
     avg_rent_sqft: 425,
-    foot_traffic_score: 80,  // Canal St + Spring St stations, ~13M combined
-    asian_dining_score: 45,  // Upscale Asian concepts, not a primary corridor
+    foot_traffic_score: 80,
+    asian_dining_score: 45,
     competitor_count: 14,
+    lat: 40.7233, lng: -73.9985,
   },
   {
     name: "Koreatown",
     avg_rent_sqft: 390,
-    foot_traffic_score: 88,  // 34 St–Herald Sq: 21M riders (2022)
-    asian_dining_score: 90,  // Dense Korean F&B cluster, 100+ Korean restaurants on 32nd St
+    foot_traffic_score: 88,
+    asian_dining_score: 90,
     competitor_count: 42,
+    lat: 40.7479, lng: -73.9877,
   },
   {
     name: "Midtown East",
     avg_rent_sqft: 350,
-    foot_traffic_score: 90,  // Grand Central–42 St: 22.9M riders (2022)
-    asian_dining_score: 68,  // Japanese business dining corridor
+    foot_traffic_score: 90,
+    asian_dining_score: 68,
     competitor_count: 22,
+    lat: 40.7527, lng: -73.9718,
   },
   {
     name: "Williamsburg",
     avg_rent_sqft: 322,
-    foot_traffic_score: 68,  // Bedford Ave (L): 8.8M riders (2024)
-    asian_dining_score: 48,  // Emerging Asian dining scene, still sparse
+    foot_traffic_score: 68,
+    asian_dining_score: 48,
     competitor_count: 10,
+    lat: 40.7081, lng: -73.9571,
   },
   {
     name: "East Village",
     avg_rent_sqft: 190,
-    foot_traffic_score: 82,  // 14 St–Union Sq + Astor Pl: ~19M combined
-    asian_dining_score: 72,  // Strong Japanese/ramen/izakaya corridor
+    foot_traffic_score: 82,
+    asian_dining_score: 72,
     competitor_count: 28,
+    lat: 40.7265, lng: -73.9815,
   },
   {
     name: "Hell's Kitchen",
     avg_rent_sqft: 175,
-    foot_traffic_score: 70,  // 50 St station + spillover; ~9M estimated
-    asian_dining_score: 62,  // Growing Thai/Japanese corridor on 9th Ave
+    foot_traffic_score: 70,
+    asian_dining_score: 62,
     competitor_count: 18,
+    lat: 40.7638, lng: -73.9918,
   },
   {
     name: "Lower East Side",
     avg_rent_sqft: 150,
-    foot_traffic_score: 65,  // Delancey–Essex St: ~8M estimated
-    asian_dining_score: 78,  // High density adjacent to Chinatown
+    foot_traffic_score: 65,
+    asian_dining_score: 78,
     competitor_count: 20,
+    lat: 40.7150, lng: -73.9843,
   },
   {
     name: "Chinatown",
     avg_rent_sqft: 110,
-    foot_traffic_score: 78,  // Canal St complex: ~14M riders
-    asian_dining_score: 97,  // 600+ Asian restaurants; original NYC Chinatown
+    foot_traffic_score: 78,
+    asian_dining_score: 97,
     competitor_count: 85,
+    lat: 40.7158, lng: -73.9970,
   },
   {
     name: "Flushing",
     avg_rent_sqft: 63,
-    foot_traffic_score: 72,  // Flushing–Main St (7): 11.7M riders (2022)
-    asian_dining_score: 96,  // Largest Chinatown outside Asia; 600+ Chinese establishments
+    foot_traffic_score: 72,
+    asian_dining_score: 96,
     competitor_count: 120,
+    lat: 40.7596, lng: -73.8317,
   },
   {
     name: "Sunset Park",
     avg_rent_sqft: 38,
-    foot_traffic_score: 52,  // 36th St (D/N/R): ~5M estimated
-    asian_dining_score: 85,  // Brooklyn's Chinatown along 8th Ave
+    foot_traffic_score: 52,
+    asian_dining_score: 85,
     competitor_count: 55,
+    lat: 40.6453, lng: -74.0125,
   },
 ];
 

@@ -7,6 +7,20 @@ export const metadata: Metadata = {
   title: "BridgeEast — Helping Asian F&B Brands Launch in NYC",
   description:
     "Market data, curated guides, and vetted partners to help Asian food & beverage brands navigate their first New York City location.",
+  metadataBase: new URL("https://bridgeeast.co"),
+  openGraph: {
+    title: "BridgeEast — Helping Asian F&B Brands Launch in NYC",
+    description:
+      "Data, guides, and vetted partners to help Asian F&B brands open their first New York City location.",
+    type: "website",
+    siteName: "BridgeEast",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BridgeEast — Helping Asian F&B Brands Launch in NYC",
+    description:
+      "Data, guides, and vetted partners to help Asian F&B brands open their first New York City location.",
+  },
 };
 
 export default function RootLayout({
