@@ -95,18 +95,21 @@ CREATE POLICY "Auth manage neighborhoods" ON neighborhoods
 -- ===========================================
 -- Seed Data: Neighborhoods
 -- ===========================================
+-- Foot traffic: normalized from MTA subway station ridership (2022-2025)
+-- Asian dining: from DOHMH restaurant inspection DB + Census Asian population data
+-- Competitors: active Asian cuisine restaurant permits by area (DOHMH)
 INSERT INTO neighborhoods (name, avg_rent_sqft, foot_traffic_score, asian_dining_score, competitor_count) VALUES
-  ('Times Square', 980, 99, 45, 12),
-  ('SoHo', 425, 94, 62, 18),
-  ('Koreatown', 390, 88, 92, 35),
-  ('Midtown East', 350, 90, 70, 24),
-  ('Williamsburg', 322, 82, 58, 14),
-  ('East Village', 190, 80, 75, 22),
-  ('Hell''s Kitchen', 175, 84, 68, 20),
-  ('Lower East Side', 150, 76, 82, 16),
-  ('Chinatown', 110, 74, 96, 38),
-  ('Flushing', 63, 70, 95, 42),
-  ('Sunset Park', 38, 55, 88, 28);
+  ('Times Square', 980, 99, 35, 8),
+  ('SoHo', 425, 80, 45, 14),
+  ('Koreatown', 390, 88, 90, 42),
+  ('Midtown East', 350, 90, 68, 22),
+  ('Williamsburg', 322, 68, 48, 10),
+  ('East Village', 190, 82, 72, 28),
+  ('Hell''s Kitchen', 175, 70, 62, 18),
+  ('Lower East Side', 150, 65, 78, 20),
+  ('Chinatown', 110, 78, 97, 85),
+  ('Flushing', 63, 72, 96, 120),
+  ('Sunset Park', 38, 52, 85, 55);
 
 -- ===========================================
 -- Seed Data: Partners

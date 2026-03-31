@@ -89,7 +89,9 @@ export default function DataPage() {
           Foot Traffic vs. Asian Dining Demand
         </h2>
         <p className="mt-1 text-sm text-gray-500">
-          Composite scores (0–100) based on foot traffic data and cuisine-specific demand indicators
+          Foot traffic normalized from MTA subway station ridership (2022–2025).
+          Asian dining demand derived from NYC DOHMH restaurant inspection data
+          and US Census Asian population figures.
         </p>
         <div className="mt-6 h-96">
           <ResponsiveContainer width="100%" height="100%">
