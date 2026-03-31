@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase/client";
+import { addWaitlistEntry } from "@/lib/store";
 import { CheckCircle } from "lucide-react";
 
 export default function WaitlistPage() {
@@ -27,12 +27,7 @@ export default function WaitlistPage() {
     };
 
     try {
-      const supabase = createClient();
-      const { error: dbError } = await supabase
-        .from("waitlist")
-        .insert([data]);
-
-      if (dbError) throw dbError;
+      addWaitlistEntry(data);
       setSubmitted(true);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";

@@ -1,67 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
-import type { Partner, Guide } from "@/lib/types";
+import type { Partner, Guide, WaitlistEntry } from "@/lib/types";
+import {
+  isAdminLoggedIn,
+  adminLogin,
+  adminLogout,
+  getPartners,
+  addPartner,
+  deletePartner,
+  getGuides,
+  addGuide,
+  deleteGuide,
+  getWaitlist,
+} from "@/lib/store";
 import { LogOut, Plus, Trash2 } from "lucide-react";
 
 type Tab = "partners" | "guides" | "waitlist";
 
 export default function AdminPage() {
-  const supabase = createClient();
-  const [user, setUser] = useState<{ email?: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [tab, setTab] = useState<Tab>("partners");
   const [partners, setPartners] = useState<Partner[]>([]);
-  const [guides, setGuides] = useState<Guide[]>([]);
-  const [waitlist, setWaitlist] = useState<{ id: string; email: string; brand_name: string; origin_country: string; target_open_date: string; created_at: string }[]>([]);
+  const [guides, setGuidesState] = useState<Guide[]>([]);
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
 
-  // Auth
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      setLoading(false);
-    });
-  }, [supabase.auth]);
+    setMounted(true);
+    setAuthed(isAdminLoggedIn());
+  }, []);
 
-  // Fetch data when tab changes
+  const loadData = useCallback(() => {
+    if (tab === "partners") setPartners(getPartners());
+    else if (tab === "guides") setGuidesState(getGuides());
+    else setWaitlist(getWaitlist());
+  }, [tab]);
+
   useEffect(() => {
-    if (!user) return;
-    if (tab === "partners") {
-      supabase.from("partners").select("*").order("created_at", { ascending: false }).then(({ data }) => setPartners(data || []));
-    } else if (tab === "guides") {
-      supabase.from("guides").select("*").order("created_at", { ascending: false }).then(({ data }) => setGuides(data || []));
-    } else {
-      supabase.from("waitlist").select("*").order("created_at", { ascending: false }).then(({ data }) => setWaitlist(data || []));
-    }
-  }, [user, tab, supabase]);
+    if (authed) loadData();
+  }, [authed, loadData]);
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+  function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: form.get("email") as string,
-      password: form.get("password") as string,
-    });
-    if (error) {
-      alert(error.message);
+    const password = form.get("password") as string;
+    if (adminLogin(password)) {
+      setAuthed(true);
     } else {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
+      alert("Invalid password");
     }
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    setUser(null);
+  function handleLogout() {
+    adminLogout();
+    setAuthed(false);
   }
 
-  if (loading) {
+  if (!mounted) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-gray-500">Loading...</p>
@@ -69,16 +70,15 @@ export default function AdminPage() {
     );
   }
 
-  if (!user) {
+  if (!authed) {
     return (
       <div className="mx-auto max-w-md px-4 py-24 sm:px-6">
         <h1 className="font-display text-3xl font-bold text-center">Admin Login</h1>
+        <p className="mt-2 text-center text-sm text-gray-500">
+          Default password: <code className="rounded bg-sand-100 px-1.5 py-0.5">bridgeeast2024</code>
+        </p>
         <Card className="mt-8">
           <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium">Email</label>
-              <Input id="email" name="email" type="email" required className="mt-1" />
-            </div>
             <div>
               <label htmlFor="password" className="block text-sm font-medium">Password</label>
               <Input id="password" name="password" type="password" required className="mt-1" />
@@ -117,8 +117,12 @@ export default function AdminPage() {
       </div>
 
       <div className="mt-8">
-        {tab === "partners" && <PartnersTab partners={partners} setPartners={setPartners} supabase={supabase} />}
-        {tab === "guides" && <GuidesTab guides={guides} setGuides={setGuides} supabase={supabase} />}
+        {tab === "partners" && (
+          <PartnersTab partners={partners} onChange={() => setPartners(getPartners())} />
+        )}
+        {tab === "guides" && (
+          <GuidesTab guides={guides} onChange={() => setGuidesState(getGuides())} />
+        )}
         {tab === "waitlist" && <WaitlistTab entries={waitlist} />}
       </div>
     </div>
@@ -127,41 +131,33 @@ export default function AdminPage() {
 
 function PartnersTab({
   partners,
-  setPartners,
-  supabase,
+  onChange,
 }: {
   partners: Partner[];
-  setPartners: (p: Partner[]) => void;
-  supabase: ReturnType<typeof createClient>;
+  onChange: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
 
-  async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
+  function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const newPartner = {
+    addPartner({
       name: form.get("name") as string,
       firm: form.get("firm") as string,
       category: form.get("category") as string,
       specialty: form.get("specialty") as string,
       languages: (form.get("languages") as string).split(",").map((l) => l.trim()),
       email: form.get("email") as string,
-      website: form.get("website") as string,
+      website: (form.get("website") as string) || "",
       verified: true,
-    };
-
-    const { data, error } = await supabase.from("partners").insert([newPartner]).select();
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    if (data) setPartners([data[0], ...partners]);
+    });
+    onChange();
     setShowForm(false);
   }
 
-  async function handleDelete(id: string) {
-    await supabase.from("partners").delete().eq("id", id);
-    setPartners(partners.filter((p) => p.id !== id));
+  function handleDelete(id: string) {
+    deletePartner(id);
+    onChange();
   }
 
   return (
@@ -217,40 +213,32 @@ function PartnersTab({
 
 function GuidesTab({
   guides,
-  setGuides,
-  supabase,
+  onChange,
 }: {
   guides: Guide[];
-  setGuides: (g: Guide[]) => void;
-  supabase: ReturnType<typeof createClient>;
+  onChange: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
 
-  async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
+  function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const title = form.get("title") as string;
-    const newGuide = {
+    addGuide({
       title,
       slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
       category: form.get("category") as string,
       phase: parseInt(form.get("phase") as string, 10),
       content: form.get("content") as string,
       published: true,
-    };
-
-    const { data, error } = await supabase.from("guides").insert([newGuide]).select();
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    if (data) setGuides([data[0], ...guides]);
+    });
+    onChange();
     setShowForm(false);
   }
 
-  async function handleDelete(id: string) {
-    await supabase.from("guides").delete().eq("id", id);
-    setGuides(guides.filter((g) => g.id !== id));
+  function handleDelete(id: string) {
+    deleteGuide(id);
+    onChange();
   }
 
   return (
@@ -308,36 +296,40 @@ function GuidesTab({
   );
 }
 
-function WaitlistTab({ entries }: { entries: { id: string; email: string; brand_name: string; origin_country: string; target_open_date: string; created_at: string }[] }) {
+function WaitlistTab({ entries }: { entries: WaitlistEntry[] }) {
   return (
     <div>
       <p className="mb-6 text-sm text-gray-500">{entries.length} signups</p>
-      <div className="overflow-x-auto rounded-lg border border-sand-200">
-        <table className="w-full text-sm">
-          <thead className="bg-sand-50">
-            <tr>
-              <th className="px-4 py-3 text-left font-semibold">Email</th>
-              <th className="px-4 py-3 text-left font-semibold">Brand</th>
-              <th className="px-4 py-3 text-left font-semibold">Country</th>
-              <th className="px-4 py-3 text-left font-semibold">Target Date</th>
-              <th className="px-4 py-3 text-left font-semibold">Signed Up</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry, i) => (
-              <tr key={entry.id} className={i % 2 === 0 ? "" : "bg-sand-50/50"}>
-                <td className="px-4 py-3">{entry.email}</td>
-                <td className="px-4 py-3">{entry.brand_name}</td>
-                <td className="px-4 py-3">{entry.origin_country}</td>
-                <td className="px-4 py-3">{entry.target_open_date}</td>
-                <td className="px-4 py-3 text-gray-500">
-                  {new Date(entry.created_at).toLocaleDateString()}
-                </td>
+      {entries.length === 0 ? (
+        <p className="text-center text-gray-400 py-12">No waitlist signups yet.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-sand-200">
+          <table className="w-full text-sm">
+            <thead className="bg-sand-50">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold">Email</th>
+                <th className="px-4 py-3 text-left font-semibold">Brand</th>
+                <th className="px-4 py-3 text-left font-semibold">Country</th>
+                <th className="px-4 py-3 text-left font-semibold">Target Date</th>
+                <th className="px-4 py-3 text-left font-semibold">Signed Up</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {entries.map((entry, i) => (
+                <tr key={entry.id} className={i % 2 === 0 ? "" : "bg-sand-50/50"}>
+                  <td className="px-4 py-3">{entry.email}</td>
+                  <td className="px-4 py-3">{entry.brand_name}</td>
+                  <td className="px-4 py-3">{entry.origin_country}</td>
+                  <td className="px-4 py-3">{entry.target_open_date}</td>
+                  <td className="px-4 py-3 text-gray-500">
+                    {new Date(entry.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
