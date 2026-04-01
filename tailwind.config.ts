@@ -32,8 +32,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["'Playfair Display'", "serif"],
-        body: ["'DM Sans'", "sans-serif"],
+        display: ["'DM Serif Display'", "serif"],
+        body: ["'Inter'", "sans-serif"],
       },
     },
   },
