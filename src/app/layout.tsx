@@ -1,47 +1,49 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Toaster } from "sonner";
 import "./globals.css";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "BridgeEast — Helping Asian F&B Brands Launch in NYC",
+  title: "Pass The Plate — Marketplace for Asian F&B Businesses",
   description:
-    "Market data, curated guides, and vetted partners to help Asian food & beverage brands navigate their first New York City location.",
-  metadataBase: new URL("https://bridgeeast.co"),
+    "The first marketplace for the $240B+ Asian F&B transition. Buy and sell Asian-owned restaurants, grocery, manufacturing, and more.",
+  metadataBase: new URL("https://passtheplate.example.com"),
   openGraph: {
-    title: "BridgeEast — Helping Asian F&B Brands Launch in NYC",
+    title: "Pass The Plate",
     description:
-      "Data, guides, and vetted partners to help Asian F&B brands open their first New York City location.",
+      "The first marketplace for the $240B+ Asian F&B transition.",
+    images: ["/og.png"],
     type: "website",
-    siteName: "BridgeEast",
   },
   twitter: {
     card: "summary_large_image",
-    title: "BridgeEast — Helping Asian F&B Brands Launch in NYC",
+    title: "Pass The Plate",
     description:
-      "Data, guides, and vetted partners to help Asian F&B brands open their first New York City location.",
+      "The first marketplace for the $240B+ Asian F&B transition.",
+    images: ["/og.png"],
   },
+  icons: { icon: "/favicon.svg" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "rgb(248, 243, 222)",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        {/* Adobe Typekit — Please Display VF + Proxima Nova */}
+        <link rel="stylesheet" href="https://use.typekit.net/cub1hgl.css" />
       </head>
       <body className="font-body antialiased">
-        <Header />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+        {children}
+        <Toaster position="bottom-center" richColors closeButton />
       </body>
     </html>
   );

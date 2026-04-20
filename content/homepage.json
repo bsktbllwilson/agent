@@ -1,0 +1,184 @@
+{
+  "nav": [
+    { "label": "Buy Business", "href": "#buy" },
+    { "label": "Sell Business", "href": "#sell" },
+    { "label": "Pro Partners", "href": "#partners" },
+    { "label": "The Playbook", "href": "#playbook" },
+    { "label": "Who We Are", "href": "#about" }
+  ],
+  "hero": {
+    "headline": "Your Seat at The Table Starts Here",
+    "italicWord": "Seat",
+    "subhead": "First Marketplace for The $240B+ Asian F&B Transition",
+    "searchPlaceholders": {
+      "location": "City, State",
+      "industry": "Industry"
+    },
+    "locationOptions": [
+      "New York, NY",
+      "Los Angeles, CA",
+      "San Francisco, CA",
+      "Houston, TX",
+      "Chicago, IL",
+      "Seattle, WA",
+      "Atlanta, GA",
+      "Honolulu, HI"
+    ],
+    "industryOptions": [
+      "Restaurants",
+      "Grocery",
+      "Manufacturing",
+      "Bakery & Dessert",
+      "Beverage",
+      "Catering"
+    ]
+  },
+  "trendingHotspots": {
+    "heading": "Trending Hotspots",
+    "cta": { "label": "More Listings", "href": "#listings" },
+    "items": [
+      {
+        "id": "golden-palace",
+        "name": "Golden Palace Dim Sum",
+        "city": "San Francisco",
+        "state": "CA",
+        "price": "$1.85M",
+        "category": "Restaurant",
+        "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "ume-ramen",
+        "name": "Ume House Ramen",
+        "city": "New York",
+        "state": "NY",
+        "price": "$1.2M",
+        "category": "Restaurant",
+        "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "hansen-grocer",
+        "name": "Hansen Asian Grocer",
+        "city": "Seattle",
+        "state": "WA",
+        "price": "$3.4M",
+        "category": "Grocery",
+        "image": "https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "saigon-bakery",
+        "name": "Saigon Sunrise Bakery",
+        "city": "Houston",
+        "state": "TX",
+        "price": "$720K",
+        "category": "Bakery",
+        "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80"
+      }
+    ]
+  },
+  "categories": {
+    "heading": "Our Plates Are Full",
+    "italicWord": "Full",
+    "subhead": "Explore opportunities across the Asian F&B value chain.",
+    "items": [
+      {
+        "slug": "restaurants",
+        "label": "Restaurants",
+        "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1200&q=80",
+        "tagline": "Full-service, fast casual, and concept-driven kitchens."
+      },
+      {
+        "slug": "grocery",
+        "label": "Grocery & Specialty",
+        "image": "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=1200&q=80",
+        "tagline": "Neighborhood markets, specialty, and import businesses."
+      },
+      {
+        "slug": "manufacturing",
+        "label": "Manufacturing",
+        "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+        "tagline": "Commissaries, CPG brands, and co-packers."
+      }
+    ]
+  },
+  "buySell": {
+    "buy": {
+      "eyebrow": "For Buyers",
+      "headline": "Find Your Next Kitchen",
+      "italicWord": "Kitchen",
+      "body": "From flagship restaurants to regional manufacturers, discover vetted businesses with verified financials and operator-friendly deal terms.",
+      "cta": { "label": "Buy A Business", "href": "#buy" },
+      "image": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1400&q=80"
+    },
+    "sell": {
+      "eyebrow": "For Sellers",
+      "headline": "Pass The Plate With Care",
+      "italicWord": "Care",
+      "body": "Meet buyers who respect your recipes, your team, and your legacy. We handle diligence, introductions, and structuring from first call to close.",
+      "cta": { "label": "Sell A Business", "href": "#sell" },
+      "image": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1400&q=80"
+    }
+  },
+  "stats": {
+    "heading": "A Market Long Overlooked",
+    "italicWord": "Overlooked",
+    "items": [
+      { "value": 240, "prefix": "$", "suffix": "B+", "label": "Asian F&B market size" },
+      { "value": 68, "suffix": "%", "label": "Owners nearing retirement" },
+      { "value": 12500, "suffix": "+", "label": "Listed businesses" },
+      { "value": 42, "suffix": "", "label": "Avg. days to first offer" }
+    ]
+  },
+  "partners": {
+    "heading": "You're In Good Hands",
+    "italicWord": "Good",
+    "items": [
+      { "name": "Momofuku Capital", "href": "#" },
+      { "name": "East Gate Ventures", "href": "#" },
+      { "name": "Lotus Partners", "href": "#" },
+      { "name": "Tiger Bridge", "href": "#" },
+      { "name": "Pearl Harbor Advisors", "href": "#" },
+      { "name": "Kirin & Co.", "href": "#" }
+    ]
+  },
+  "subscribe": {
+    "heading": "Find Your Next Big Deal",
+    "italicWord": "Big",
+    "body": "Fresh listings, market insight, and deal intel — delivered weekly.",
+    "placeholder": "Your email",
+    "cta": "Subscribe",
+    "success": "Thanks — we'll be in touch."
+  },
+  "footer": {
+    "tagline": "The first marketplace for the Asian F&B transition.",
+    "columns": [
+      {
+        "heading": "Marketplace",
+        "links": [
+          { "label": "Buy a Business", "href": "#buy" },
+          { "label": "Sell a Business", "href": "#sell" },
+          { "label": "Browse Listings", "href": "#listings" },
+          { "label": "Pro Partners", "href": "#partners" }
+        ]
+      },
+      {
+        "heading": "Resources",
+        "links": [
+          { "label": "The Playbook", "href": "#playbook" },
+          { "label": "Market Insights", "href": "#insights" },
+          { "label": "Valuation Tool", "href": "#valuation" },
+          { "label": "FAQ", "href": "#faq" }
+        ]
+      },
+      {
+        "heading": "Company",
+        "links": [
+          { "label": "Who We Are", "href": "#about" },
+          { "label": "Careers", "href": "#careers" },
+          { "label": "Press", "href": "#press" },
+          { "label": "Contact", "href": "#contact" }
+        ]
+      }
+    ],
+    "legal": "© 2026 Pass The Plate. All rights reserved."
+  }
+}

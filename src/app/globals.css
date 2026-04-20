@@ -1,19 +1,98 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-cream: rgb(248, 243, 222);
+  --color-orange: rgb(230, 78, 33);
+  --color-orange-deep: rgb(230, 80, 37);
+  --color-yellow: rgb(255, 239, 124);
+  --color-ink: #000000;
+  --color-ink-muted: rgba(0, 0, 0, 0.5);
+
+  --font-display: "please-display-vf", Georgia, "Times New Roman", serif;
+  --font-body: "proxima-nova", "Helvetica Neue", Arial, sans-serif;
+
+  --radius-card: 1.5rem;
+  --radius-pill: 3.125rem;
+
+  --container-max: 1440px;
+}
 
 :root {
-  --background: #FDFBF7;
-  --foreground: #1A1A1A;
+  color-scheme: light;
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+html,
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  min-height: 100dvh;
 }
 
 @layer base {
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'DM Serif Display', serif;
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
   }
+}
+
+@utility container-px {
+  padding-inline: clamp(1.25rem, 4vw, 5rem);
+}
+
+@utility section-y {
+  padding-block: clamp(4rem, 8vw, 8rem);
+}
+
+@utility text-hero {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7vw, 6.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+@utility text-section {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.125rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-weight: 400;
+}
+
+@utility text-subhead {
+  font-family: var(--font-body);
+  font-size: clamp(1.125rem, 1.8vw, 1.875rem);
+  line-height: 1.4;
+}
+
+/* Respect reduced motion globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hide scrollbars on horizontal scroll snap rows (mobile carousels) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
 }
