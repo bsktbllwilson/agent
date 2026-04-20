@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Pass The Plate — Marketplace for Asian F&B Businesses",
   description:
     "The first marketplace for the $240B+ Asian F&B transition. Buy and sell Asian-owned restaurants, grocery, manufacturing, and more.",
-  metadataBase: new URL("https://passtheplate.example.com"),
+  metadataBase: new URL("https://passtheplate.store"),
   openGraph: {
     title: "Pass The Plate",
     description:
