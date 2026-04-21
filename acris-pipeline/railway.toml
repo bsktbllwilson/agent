@@ -1,0 +1,6 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "python sync.py --backfill-days 2"
+restartPolicyType = "NEVER"
