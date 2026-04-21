@@ -338,14 +338,28 @@ def upsert_airtable(records: list[dict], api_key: str, base_id: str, table_name:
     return total
 
 
+def _require_ascii(name: str, value: str) -> str:
+    stripped = value.strip()
+    try:
+        stripped.encode("ascii")
+    except UnicodeEncodeError as e:
+        raise SystemExit(
+            f"{name} contains non-ASCII characters (position {e.start}: "
+            f"{stripped[e.start]!r}). Airtable/Socrata API keys and table "
+            f"names must be plain ASCII. Common cause: pasting placeholder "
+            f"text like 'pat…' or 'optional — skip' from documentation."
+        )
+    return stripped
+
+
 def run(backfill_days: int, dry_run: bool = False, limit: int | None = None) -> None:
     if dry_run:
         airtable_key = base_id = table_name = None
         log.info("DRY RUN: Airtable credentials not required; no writes will occur.")
     else:
-        airtable_key = os.environ["AIRTABLE_API_KEY"]
-        base_id = os.environ["AIRTABLE_BASE_ID"]
-        table_name = os.environ["AIRTABLE_TABLE_NAME"]
+        airtable_key = _require_ascii("AIRTABLE_API_KEY", os.environ["AIRTABLE_API_KEY"])
+        base_id = _require_ascii("AIRTABLE_BASE_ID", os.environ["AIRTABLE_BASE_ID"])
+        table_name = _require_ascii("AIRTABLE_TABLE_NAME", os.environ["AIRTABLE_TABLE_NAME"])
     token = os.environ.get("SOCRATA_APP_TOKEN") or None
     if token:
         token = token.strip()
