@@ -35,33 +35,30 @@ Table name: **`Comps_NYC_4M_Plus`**
 | `acris_url` | URL | deep link to ACRIS DocumentDetail |
 | `building_name` | Single line text | optional, manual |
 
-## Railway deploy
+## Deploy (GitHub Actions)
 
-From the project directory:
+The workflow lives at `.github/workflows/acris-sync.yml` and runs on cron `0 9 * * *` (09:00 UTC = 05:00 ET).
 
-```
-railway login
-railway init
-railway link
-railway up
-```
+**Set three repo secrets** at `Settings → Secrets and variables → Actions → New repository secret`:
 
-Set environment variables in the Railway dashboard:
+- `AIRTABLE_API_KEY` — personal access token with `data.records:read` + `data.records:write` on the base
+- `AIRTABLE_BASE_ID` — starts with `app…`
+- `AIRTABLE_TABLE_NAME` — `Comps_NYC_4M_Plus`
+- `SOCRATA_APP_TOKEN` — optional; skip if you don't have one
 
-- `AIRTABLE_API_KEY`
-- `AIRTABLE_BASE_ID`
-- `AIRTABLE_TABLE_NAME` (set to `Comps_NYC_4M_Plus`)
-- `SOCRATA_APP_TOKEN` (optional — raises the rate limit)
+That's it. The workflow will run nightly. It also runs `test_tagging.py` on every invocation so a bad regex change never reaches Airtable.
 
-Under **Settings → Cron Schedule**, set: `0 9 * * *` (09:00 UTC = 05:00 ET).
+### Manual runs (backfill / dry-run)
 
-Railway's cron requires the process to exit cleanly — this one does (`restartPolicyType = "NEVER"` in `railway.toml`).
+Go to `Actions → ACRIS Sync → Run workflow`. Inputs:
 
-## Initial backfill
+- **Days to backfill** — default `2`. Set to `90` for the initial backfill.
+- **Dry run** — check this to skip the Airtable write entirely. Useful for a one-off sanity check.
+- **Optional `--limit N`** — leave blank for production; set to e.g. `5` for a fast smoke test.
 
-```
-railway run python sync.py --backfill-days 90
-```
+### Alternative: Railway
+
+`railway.toml` is included for Railway deployment (NIXPACKS, `python sync.py --backfill-days 2`, `restartPolicyType = "NEVER"`). See the Railway dashboard for env vars + cron schedule setup. The GitHub Actions path is simpler and recommended.
 
 ## Local dev
 
