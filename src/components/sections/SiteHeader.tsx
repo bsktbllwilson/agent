@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Wordmark } from "@/components/Wordmark";
+import { useAuthState } from "@/lib/use-role";
 import { cn } from "@/lib/utils";
 import type { Homepage } from "../../../content/schema";
 
@@ -10,6 +11,9 @@ type NavItem = Homepage["nav"][number];
 
 export function SiteHeader({ nav }: { nav: NavItem[] }) {
   const [open, setOpen] = useState(false);
+  const { role, email, loading } = useAuthState();
+  const isAdmin = role === "admin";
+  const signedIn = !!email;
 
   useEffect(() => {
     if (!open) return;
@@ -41,12 +45,20 @@ export function SiteHeader({ nav }: { nav: NavItem[] }) {
                 {item.label}
               </a>
             ))}
+            {isAdmin && (
+              <a
+                href="/admin"
+                className="text-[0.95rem] font-medium text-cream underline underline-offset-4"
+              >
+                Admin
+              </a>
+            )}
           </nav>
           <a
-            href="#listings"
+            href={signedIn ? "/admin" : "/signin"}
             className="hidden rounded-full bg-cream px-5 py-2 text-sm font-medium text-ink transition-colors hover:bg-cream/90 lg:inline-flex"
           >
-            Sign In
+            {loading ? " " : signedIn ? "Account" : "Sign In"}
           </a>
           <button
             type="button"
@@ -87,12 +99,21 @@ export function SiteHeader({ nav }: { nav: NavItem[] }) {
                 {item.label}
               </a>
             ))}
+            {isAdmin && (
+              <a
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="font-display text-4xl text-cream"
+              >
+                Admin
+              </a>
+            )}
             <a
-              href="#listings"
+              href={signedIn ? "/admin" : "/signin"}
               onClick={() => setOpen(false)}
               className="mt-auto inline-flex w-full items-center justify-center rounded-full bg-cream py-4 font-medium text-ink"
             >
-              Sign In
+              {signedIn ? "Account" : "Sign In"}
             </a>
           </nav>
         </div>

@@ -84,6 +84,68 @@ Designed at 1440px. Breakpoints follow Tailwind defaults (`sm: 640`,
 
 Tested at 390, 768, 1024, 1440, 1920.
 
+## Admin auth (Supabase)
+
+Magic-link sign-in with role-based admin gating via Supabase `app_metadata`.
+
+### 1. Set env vars
+
+Copy `.env.local.example` → `.env.local`:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
+```
+
+Also add these to Vercel → Project → Settings → Environment Variables
+(Production + Preview).
+
+### 2. Run the migration
+
+Apply `supabase/migrations/0001_admin_role.sql` in the Supabase SQL Editor.
+It installs:
+
+- `handle_new_user_role()` — trigger that writes `app_metadata.role` at
+  signup. Users can request `buyer` / `seller` / `broker`; everything else
+  (including `admin`) is forced to `buyer`. Never trust
+  `user_metadata.role` for auth.
+- `is_admin()` — use inside RLS policies: `using (public.is_admin())`.
+
+### 3. Promote an admin
+
+Dashboard → **Authentication → Users** → select user → **Raw App Meta
+Data** → add `"role": "admin"`. User must sign out + back in for the JWT
+to refresh. SQL form:
+
+```sql
+update auth.users
+set raw_app_meta_data = raw_app_meta_data || '{"role":"admin"}'::jsonb
+where email = 'you@example.com';
+```
+
+### 4. Routes
+
+| Route | Purpose |
+|---|---|
+| `/signin` | Magic-link email form (no password) |
+| `/auth/callback` | PKCE code exchange → sets session, redirects to `next` |
+| `/admin` | Gated via `requireAdmin()`; non-admins redirect to `/` |
+
+Helpers live in `src/lib/auth.ts` (`getCurrentUser`, `getRole`, `isAdmin`,
+`requireAdmin`, `requireSignedIn`) and `src/lib/use-role.ts` (client hook
+for conditional UI). Middleware in `src/middleware.ts` refreshes the
+Supabase session cookie on every request.
+
+### 5. Supabase dashboard config
+
+- **Authentication → URL Configuration**
+  - Site URL: `https://passtheplate.store`
+  - Redirect URLs: add `https://passtheplate.store/**` and your Vercel
+    preview URL pattern (`https://*-yourteam.vercel.app/**`)
+- **Authentication → SMTP Settings:** enable custom SMTP → Resend
+  (`smtp.resend.com:465`, user `resend`, password = Resend API key,
+  sender = a verified address on a verified domain).
+
 ## Deploy
 
 Push to a GitHub repo, import into Vercel. Zero config required — Next.js
