@@ -347,6 +347,18 @@ def run(backfill_days: int, dry_run: bool = False, limit: int | None = None) -> 
         base_id = os.environ["AIRTABLE_BASE_ID"]
         table_name = os.environ["AIRTABLE_TABLE_NAME"]
     token = os.environ.get("SOCRATA_APP_TOKEN") or None
+    if token:
+        token = token.strip()
+        try:
+            token.encode("ascii")
+        except UnicodeEncodeError:
+            log.warning(
+                "SOCRATA_APP_TOKEN contains non-ASCII characters; ignoring."
+            )
+            token = None
+        else:
+            if not token:
+                token = None
 
     end_dt = datetime.now(timezone.utc).date() + timedelta(days=1)
     start_dt = end_dt - timedelta(days=backfill_days)
