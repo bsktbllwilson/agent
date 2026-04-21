@@ -1,6 +1,6 @@
 {
   "nav": [
-    { "label": "Buy Business", "href": "#buy" },
+    { "label": "Browse Listings", "href": "/listings" },
     { "label": "Sell Business", "href": "#sell" },
     { "label": "Pro Partners", "href": "#partners" },
     { "label": "The Playbook", "href": "#playbook" },

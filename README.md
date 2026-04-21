@@ -1,10 +1,15 @@
-# Pass The Plate — Landing Page
+# Pass The Plate
 
-The marketing homepage for **Pass The Plate**, the first marketplace for the
-$240B+ Asian F&B business transition (buying and selling Asian-owned
-restaurants, grocery, manufacturing, and more).
+Marketplace for the $240B+ Asian F&B business transition (buying and selling
+Asian-owned restaurants, grocery, manufacturing, and more).
 
-This is a single-page build — production-ready, deployable to Vercel.
+Includes:
+- Marketing homepage (dynamic — featured listings pulled from Supabase)
+- `/listings` browse with filters (cuisine / type / neighborhood / price)
+- `/listings/[slug]` detail page with deal mechanics and owner story
+- Magic-link auth + admin gating (from earlier phases)
+
+Deployable to Vercel.
 
 ## Stack
 
@@ -51,6 +56,30 @@ Defined in `src/app/globals.css` under `@theme`:
 
 Fonts are loaded from Adobe Typekit kit `cub1hgl` via a `<link>` in
 `src/app/layout.tsx`.
+
+## Routes
+
+| Route | Notes |
+|---|---|
+| `/` | Marketing home. Static with 60s revalidate. Trending Hotspots auto-pulls top 4 featured published listings from Supabase (falls back to seed data if env vars missing). |
+| `/listings` | SSR listings grid. Filters via URL params: `?cuisine=&subtype=&neighborhood=&min=&max=&q=`. Reads facet options from the DB. |
+| `/listings/[slug]` | SSR detail page with At-a-Glance rail, deal mechanics, owner story. "Request intro" CTA routes unsigned users to `/signin?next=…`. |
+| `/signin` | Magic-link (Supabase OTP). |
+| `/auth/callback` | PKCE code exchange. |
+| `/admin` | `requireAdmin` gate — reads `app_metadata.role`. |
+
+## Data layer
+
+`src/lib/listings.ts` exposes:
+
+- `getPublishedListings(filters, opts)` — filtered list, ordered featured-first.
+- `getListingBySlug(slug)` — single listing by slug, only if `status = 'published'`.
+- `getFeaturedListings(limit)` — landing "Trending Hotspots".
+- `getFilterFacets()` — unique cuisine / subtype / neighborhood values for filter dropdowns.
+
+All reads are filtered by `status = 'published'` server-side — so the anon
+key + RLS can't leak drafts. Price / area / year formatting helpers live in
+`src/lib/format.ts`.
 
 ## Page structure
 
