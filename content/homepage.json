@@ -1,7 +1,7 @@
 {
   "nav": [
     { "label": "Browse Listings", "href": "/listings" },
-    { "label": "Sell Business", "href": "#sell" },
+    { "label": "Sell Business", "href": "/sell" },
     { "label": "Pro Partners", "href": "#partners" },
     { "label": "The Playbook", "href": "#playbook" },
     { "label": "Who We Are", "href": "#about" }
@@ -106,7 +106,7 @@
       "headline": "Find Your Next Kitchen",
       "italicWord": "Kitchen",
       "body": "From flagship restaurants to regional manufacturers, discover vetted businesses with verified financials and operator-friendly deal terms.",
-      "cta": { "label": "Buy A Business", "href": "#buy" },
+      "cta": { "label": "Buy A Business", "href": "/listings" },
       "image": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1400&q=80"
     },
     "sell": {
@@ -114,7 +114,7 @@
       "headline": "Pass The Plate With Care",
       "italicWord": "Care",
       "body": "Meet buyers who respect your recipes, your team, and your legacy. We handle diligence, introductions, and structuring from first call to close.",
-      "cta": { "label": "Sell A Business", "href": "#sell" },
+      "cta": { "label": "Sell A Business", "href": "/sell" },
       "image": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1400&q=80"
     }
   },

@@ -30,3 +30,28 @@ export function formatEstablished(year: number | null | undefined): string {
   if (year == null) return "—";
   return `Est. ${year}`;
 }
+
+export function formatStatus(status: string | null | undefined): {
+  label: string;
+  tone: "draft" | "pending" | "published" | "rejected" | "unknown";
+} {
+  const s = (status ?? "").toLowerCase();
+  if (s === "draft") return { label: "Draft", tone: "draft" };
+  if (s === "pending") return { label: "Pending review", tone: "pending" };
+  if (s === "published") return { label: "Published", tone: "published" };
+  if (s === "rejected") return { label: "Needs revisions", tone: "rejected" };
+  return { label: status ?? "Unknown", tone: "unknown" };
+}
+
+export function slugify(input: string): string {
+  return input
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 72);
+}
+

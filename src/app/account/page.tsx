@@ -36,6 +36,12 @@ export default async function AccountPage() {
             >
               Browse
             </Link>
+            <Link
+              href="/sell/listings"
+              className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
+            >
+              Sell
+            </Link>
             {role === "admin" && (
               <Link
                 href="/admin"

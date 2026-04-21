@@ -64,10 +64,37 @@ Fonts are loaded from Adobe Typekit kit `cub1hgl` via a `<link>` in
 | `/` | Marketing home. Static with 60s revalidate. Trending Hotspots auto-pulls top 4 featured published listings from Supabase (falls back to seed data if env vars missing). |
 | `/listings` | SSR listings grid. Filters via URL params: `?cuisine=&subtype=&neighborhood=&min=&max=&q=`. Reads facet options from the DB. |
 | `/listings/[slug]` | SSR detail page with At-a-Glance rail, deal mechanics, owner story. "Request intro" CTA routes unsigned users to `/signin?next=…`. |
+| `/sell` | Public seller landing. CTA flips between "Sign in" and "Start a listing" based on auth. |
+| `/sell/new` | `requireSignedIn` — minimal create form (name, cuisine, type, neighborhood, price, hero URL) → creates draft, redirects to edit. |
+| `/sell/listings` | `requireSignedIn` — your listings dashboard (status + quick stats). |
+| `/sell/listings/[id]` | `requireSignedIn` — full edit form with status banner. Can **Save** while draft/pending. **Submit for review** flips draft → pending (enforced in the server action + RLS). **Delete draft** hard-deletes own drafts only. Fields lock when status is `published` / `rejected`. |
 | `/account` | `requireSignedIn` — profile + saved listings grid + sign-out. |
 | `/signin` | Magic-link (Supabase OTP). Respects `?next=` for post-login redirect (validated same-origin). |
 | `/auth/callback` | PKCE code exchange. |
 | `/admin` | `requireAdmin` gate — reads `app_metadata.role`. |
+
+## Seller flow & RLS
+
+Migration `supabase/migrations/0003_listing_rls.sql` enables RLS on
+`public.listings` with this policy matrix (assumes `public.is_admin()`
+from `0001`):
+
+| Role | SELECT | INSERT | UPDATE | DELETE |
+|---|---|---|---|---|
+| anon | `status = 'published'` | — | — | — |
+| signed-in user | `status = 'published'` OR own rows | only as `seller_id = auth.uid()` **and** `status = 'draft'` | own rows while `status in ('draft','pending')` (can't flip to `published`) | own rows while `status = 'draft'` |
+| admin | all | — | any | — |
+
+Server actions live in `src/lib/seller-actions.ts`:
+- `createDraftListing(form)` — auto-slugs from name with collision suffix.
+- `updateListing(form)` — partial update; re-slug if name changed.
+- `submitListingForReview(id)` — enforces required-fields check in app + RLS
+  (status moves draft → pending).
+- `deleteDraftListing(id)` — hard delete, drafts only.
+
+Because the server actions use the **anon** Supabase client with RLS, a
+compromised client can't bypass the lifecycle even if it mimics the
+endpoints.
 
 ## Saved listings
 
