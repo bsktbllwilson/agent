@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getListingBySlug } from "@/lib/listings";
+import { getSavedListingIds } from "@/lib/saved-listings";
+import { getCurrentUser } from "@/lib/auth";
 import {
   formatPrice,
   formatRevenue,
@@ -12,6 +14,7 @@ import {
   formatEstablished,
 } from "@/lib/format";
 import { Wordmark } from "@/components/Wordmark";
+import { SaveListingButton } from "@/components/primitives/SaveListingButton";
 
 export const dynamic = "force-dynamic";
 
@@ -42,8 +45,13 @@ export default async function ListingDetailPage({
   params: Params;
 }) {
   const { slug } = await params;
-  const listing = await getListingBySlug(slug);
+  const [listing, user] = await Promise.all([
+    getListingBySlug(slug),
+    getCurrentUser(),
+  ]);
   if (!listing) notFound();
+  const savedIds = user ? await getSavedListingIds() : new Set<string>();
+  const isSaved = savedIds.has(listing.id);
 
   const specs: { label: string; value: string }[] = [
     { label: "Asking price", value: formatPrice(listing.price) },
@@ -111,7 +119,17 @@ export default async function ListingDetailPage({
                   </span>
                 )}
               </div>
-              <h1 className="text-hero text-ink">{listing.name}</h1>
+              <div className="flex items-start justify-between gap-6">
+                <h1 className="text-hero text-ink">{listing.name}</h1>
+                {user && listing.slug && (
+                  <SaveListingButton
+                    listingId={listing.id}
+                    initialSaved={isSaved}
+                    redirectPath={`/listings/${listing.slug}`}
+                    variant="inline"
+                  />
+                )}
+              </div>
               <div className="text-3xl font-medium text-ink">
                 {formatPrice(listing.price)}
               </div>

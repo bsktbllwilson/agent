@@ -64,9 +64,20 @@ Fonts are loaded from Adobe Typekit kit `cub1hgl` via a `<link>` in
 | `/` | Marketing home. Static with 60s revalidate. Trending Hotspots auto-pulls top 4 featured published listings from Supabase (falls back to seed data if env vars missing). |
 | `/listings` | SSR listings grid. Filters via URL params: `?cuisine=&subtype=&neighborhood=&min=&max=&q=`. Reads facet options from the DB. |
 | `/listings/[slug]` | SSR detail page with At-a-Glance rail, deal mechanics, owner story. "Request intro" CTA routes unsigned users to `/signin?next=…`. |
-| `/signin` | Magic-link (Supabase OTP). |
+| `/account` | `requireSignedIn` — profile + saved listings grid + sign-out. |
+| `/signin` | Magic-link (Supabase OTP). Respects `?next=` for post-login redirect (validated same-origin). |
 | `/auth/callback` | PKCE code exchange. |
 | `/admin` | `requireAdmin` gate — reads `app_metadata.role`. |
+
+## Saved listings
+
+Per-user favorites with heart buttons on every listing card (index + detail).
+
+- Table: `public.saved_listings (user_id, listing_id, created_at)` — composite PK, RLS-locked to the owner.
+- Migration: `supabase/migrations/0002_saved_listings.sql`.
+- Server actions: `saveListing` / `unsaveListing` / `signOut` in `src/lib/actions.ts` — use Next.js `revalidatePath`.
+- UI: `SaveListingButton` uses `useOptimistic` + `useTransition` so taps feel instant.
+- Hearts hidden for signed-out users (prevents silent failures); "Request intro" CTA still prompts sign-in via `next=`.
 
 ## Data layer
 

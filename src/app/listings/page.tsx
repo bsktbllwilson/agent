@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getPublishedListings, getFilterFacets } from "@/lib/listings";
+import { getSavedListingIds } from "@/lib/saved-listings";
+import { getCurrentUser } from "@/lib/auth";
 import { ListingPreviewCard } from "@/components/primitives/ListingPreviewCard";
 import { Wordmark } from "@/components/Wordmark";
 import type { ListingFilters } from "@/lib/types";
@@ -37,10 +39,12 @@ export default async function ListingsPage({
     search: sp.q,
   };
 
-  const [listings, facets] = await Promise.all([
+  const [listings, facets, user] = await Promise.all([
     getPublishedListings(filters, { orderBy: "featured", limit: 48 }),
     getFilterFacets(),
+    getCurrentUser(),
   ]);
+  const savedIds = user ? await getSavedListingIds() : new Set<string>();
 
   const hasFilters = Object.values(sp).some((v) => v != null && v !== "");
 
@@ -52,10 +56,10 @@ export default async function ListingsPage({
             <Wordmark tone="ink" />
           </Link>
           <Link
-            href="/signin"
+            href={user ? "/account" : "/signin"}
             className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
           >
-            Sign In
+            {user ? "Account" : "Sign In"}
           </Link>
         </div>
       </div>
@@ -89,7 +93,12 @@ export default async function ListingsPage({
               </p>
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {listings.map((l) => (
-                  <ListingPreviewCard key={l.id} listing={l} />
+                  <ListingPreviewCard
+                    key={l.id}
+                    listing={l}
+                    saved={savedIds.has(l.id)}
+                    showSaveButton={!!user}
+                  />
                 ))}
               </div>
             </>

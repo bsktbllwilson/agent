@@ -1,11 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
+import { SaveListingButton } from "@/components/primitives/SaveListingButton";
 import type { Listing } from "@/lib/types";
 
 type Props = {
   listing: Pick<
     Listing,
+    | "id"
     | "slug"
     | "name"
     | "neighborhood"
@@ -15,9 +17,15 @@ type Props = {
     | "hero_url"
     | "featured"
   >;
+  saved?: boolean;
+  showSaveButton?: boolean;
 };
 
-export function ListingPreviewCard({ listing }: Props) {
+export function ListingPreviewCard({
+  listing,
+  saved = false,
+  showSaveButton = false,
+}: Props) {
   const href = listing.slug ? `/listings/${listing.slug}` : "#";
   const tag = listing.subtype || listing.cuisine || "Business";
 
@@ -44,9 +52,19 @@ export function ListingPreviewCard({ listing }: Props) {
           {tag}
         </span>
         {listing.featured && (
-          <span className="absolute right-4 top-4 rounded-full bg-orange px-3 py-1 text-xs font-medium text-cream">
+          <span className="absolute right-4 bottom-4 rounded-full bg-orange px-3 py-1 text-xs font-medium text-cream">
             Featured
           </span>
+        )}
+        {showSaveButton && listing.slug && (
+          <div className="absolute right-3 top-3">
+            <SaveListingButton
+              listingId={listing.id}
+              initialSaved={saved}
+              redirectPath={`/listings/${listing.slug}`}
+              size="sm"
+            />
+          </div>
         )}
       </div>
       <div className="flex flex-col gap-1">

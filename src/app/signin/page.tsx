@@ -1,12 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 import { Wordmark } from "@/components/Wordmark";
 
+const DEFAULT_NEXT = "/account";
+
+function sanitizeNext(raw: string | null): string {
+  if (!raw) return DEFAULT_NEXT;
+  // Only allow same-origin, root-relative paths — prevents open-redirect.
+  if (!raw.startsWith("/") || raw.startsWith("//")) return DEFAULT_NEXT;
+  return raw;
+}
+
 export default function SignInPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignInInner />
+    </Suspense>
+  );
+}
+
+function SignInInner() {
+  const params = useSearchParams();
+  const next = sanitizeNext(params.get("next"));
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -20,11 +40,10 @@ export default function SignInPage() {
     setBusy(true);
     try {
       const sb = getBrowserSupabase();
+      const redirect = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
       const { error } = await sb.auth.signInWithOtp({
         email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/admin`,
-        },
+        options: { emailRedirectTo: redirect },
       });
       if (error) throw error;
       setSent(true);
