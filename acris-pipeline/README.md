@@ -74,6 +74,20 @@ pip install -r requirements.txt
 source .env && python sync.py --backfill-days 7
 ```
 
+Smoke-test flags (no Airtable writes):
+
+```
+python sync.py --backfill-days 2 --dry-run --limit 5
+```
+
+`--dry-run` skips the Airtable upsert entirely (no credentials required) and logs a sample of the assembled records. `--limit N` truncates deeds to the first N after fetch, for a fast end-to-end test. Combine both before the first production run.
+
+Unit tests for the tagging helpers:
+
+```
+python -m unittest test_tagging -v
+```
+
 Weekly Excel snapshot:
 
 ```

@@ -338,10 +338,14 @@ def upsert_airtable(records: list[dict], api_key: str, base_id: str, table_name:
     return total
 
 
-def run(backfill_days: int) -> None:
-    airtable_key = os.environ["AIRTABLE_API_KEY"]
-    base_id = os.environ["AIRTABLE_BASE_ID"]
-    table_name = os.environ["AIRTABLE_TABLE_NAME"]
+def run(backfill_days: int, dry_run: bool = False, limit: int | None = None) -> None:
+    if dry_run:
+        airtable_key = base_id = table_name = None
+        log.info("DRY RUN: Airtable credentials not required; no writes will occur.")
+    else:
+        airtable_key = os.environ["AIRTABLE_API_KEY"]
+        base_id = os.environ["AIRTABLE_BASE_ID"]
+        table_name = os.environ["AIRTABLE_TABLE_NAME"]
     token = os.environ.get("SOCRATA_APP_TOKEN") or None
 
     end_dt = datetime.now(timezone.utc).date() + timedelta(days=1)
@@ -352,6 +356,9 @@ def run(backfill_days: int) -> None:
 
     deeds = fetch_deeds(start, end, token)
     log.info("Deeds fetched: %d", len(deeds))
+    if limit is not None:
+        deeds = deeds[:limit]
+        log.info("Deeds truncated to --limit: %d", len(deeds))
 
     doc_ids = [d["document_id"] for d in deeds if d.get("document_id")]
     legals = fetch_legals(doc_ids, token)
@@ -401,6 +408,12 @@ def run(backfill_days: int) -> None:
         log.info("No records to upsert.")
         return
 
+    if dry_run:
+        log.info("DRY RUN: would upsert %d records. Sample (up to 3):", len(records))
+        for r in records[:3]:
+            log.info("  %s", r)
+        return
+
     upserted = upsert_airtable(records, airtable_key, base_id, table_name)
     log.info("Records upserted: %d", upserted)
 
@@ -412,8 +425,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser = argparse.ArgumentParser(description="ACRIS → Airtable sync")
     parser.add_argument("--backfill-days", type=int, default=2)
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Fetch and tag, but skip Airtable writes. No credentials required.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Truncate deeds to first N after fetch; useful for quick smoke tests.",
+    )
     args = parser.parse_args(argv)
-    run(args.backfill_days)
+    run(args.backfill_days, dry_run=args.dry_run, limit=args.limit)
     return 0
 
 
