@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly prospect pipeline — Monday 8am ET
+
+[Timer]
+OnCalendar=Mon *-*-* 08:00 America/New_York
+Persistent=true
+Unit=prospect-pipeline.service
+
+[Install]
+WantedBy=timers.target

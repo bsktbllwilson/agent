@@ -1,0 +1,5 @@
+# Weekly Monday 8am ET run of the prospect pipeline.
+# Install with: sudo cp scripts/prospect-pipeline.cron /etc/cron.d/prospect-pipeline
+TZ=America/New_York
+MAILTO=ops@alignmentre.com
+0 8 * * MON  deploy  cd /opt/prospect-pipeline && /opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli prospect-week --lookback-days 7 >> /var/log/prospect-pipeline/cron.log 2>&1

@@ -1,0 +1,125 @@
+# Top NYC real estate law firms. A service-of-process address matching one of
+# these firms on a buyer LLC is a strong sophistication signal (family office,
+# hedge fund, PE, or high-net-worth domestic buyer). Used by Tier 3 NY DOS
+# enrichment to route "indirect outreach" to the filing attorney.
+#
+# Schema:
+#   name:          canonical firm name
+#   aka:           alternate names seen on filings
+#   real_estate_practice_head: public-facing partner name (work contact only)
+#   phone:
+#   email:
+#   website:
+#   tier:          "white-shoe" | "boutique-re" | "ma-real-estate"
+#   notes:
+law_firms:
+  - name: Fried, Frank, Harris, Shriver & Jacobson
+    aka: [Fried Frank, FFHS&J]
+    phone: "+1-212-859-8000"
+    email: info@friedfrank.com
+    website: https://www.friedfrank.com
+    tier: white-shoe
+    notes: Leading NYC real estate practice, sophisticated high-net-worth buyers.
+
+  - name: Stroock & Stroock & Lavan
+    aka: [Stroock]
+    phone: "+1-212-806-5400"
+    email: info@stroock.com
+    website: https://www.stroock.com
+    tier: white-shoe
+    notes: Condo/co-op formation and representation.
+
+  - name: Schulte Roth & Zabel
+    aka: [SRZ, Schulte Roth]
+    phone: "+1-212-756-2000"
+    email: info@srz.com
+    website: https://www.srz.com
+    tier: white-shoe
+    notes: Hedge fund partners frequently use SRZ for personal RE.
+
+  - name: Kramer Levin Naftalis & Frankel
+    aka: [Kramer Levin]
+    phone: "+1-212-715-9100"
+    email: info@kramerlevin.com
+    website: https://www.kramerlevin.com
+    tier: white-shoe
+
+  - name: Paul, Weiss, Rifkind, Wharton & Garrison
+    aka: [Paul Weiss, PW]
+    phone: "+1-212-373-3000"
+    email: info@paulweiss.com
+    website: https://www.paulweiss.com
+    tier: white-shoe
+    notes: PE-principal and hedge-fund partner personal RE.
+
+  - name: Kasowitz Benson Torres
+    aka: [Kasowitz]
+    phone: "+1-212-506-1700"
+    email: info@kasowitz.com
+    website: https://www.kasowitz.com
+    tier: white-shoe
+
+  - name: Skadden, Arps, Slate, Meagher & Flom
+    aka: [Skadden]
+    phone: "+1-212-735-3000"
+    email: info@skadden.com
+    website: https://www.skadden.com
+    tier: white-shoe
+
+  - name: Sullivan & Cromwell
+    aka: [S&C, Sullivan Cromwell]
+    phone: "+1-212-558-4000"
+    email: info@sullcrom.com
+    website: https://www.sullcrom.com
+    tier: white-shoe
+
+  - name: Simpson Thacher & Bartlett
+    aka: [Simpson Thacher, STB]
+    phone: "+1-212-455-2000"
+    email: info@stblaw.com
+    website: https://www.stblaw.com
+    tier: white-shoe
+
+  - name: Cleary Gottlieb Steen & Hamilton
+    aka: [Cleary, Cleary Gottlieb]
+    phone: "+1-212-225-2000"
+    email: info@cgsh.com
+    website: https://www.clearygottlieb.com
+    tier: white-shoe
+
+  - name: Adam Leitman Bailey, P.C.
+    aka: [Adam Leitman Bailey, ALB]
+    phone: "+1-212-825-0365"
+    email: info@alblawfirm.com
+    website: https://www.alblawfirm.com
+    tier: boutique-re
+    notes: High-volume NYC residential RE boutique.
+
+  - name: Belkin Burden Wenig & Goldman
+    aka: [Belkin Burden, BBWG]
+    phone: "+1-212-867-4466"
+    email: info@bbwg.com
+    website: https://www.bbwg.com
+    tier: boutique-re
+
+  - name: Rosenberg & Estis
+    aka: [Rosenberg Estis]
+    phone: "+1-212-867-6000"
+    email: info@rosenbergestis.com
+    website: https://www.rosenbergestis.com
+    tier: boutique-re
+
+  - name: Katz Sommerfeld
+    aka: [Katz Sommerfeld, KS]
+    phone: "+1-212-826-0800"
+    email: info@ks-law.com
+    website: https://www.ks-law.com
+    tier: boutique-re
+
+  - name: Pryor Cashman
+    aka: [Pryor Cashman LLP]
+    phone: "+1-212-421-4100"
+    email: info@pryorcashman.com
+    website: https://www.pryorcashman.com
+    tier: ma-real-estate
+    notes: Entertainment + RE crossover, useful signal for creative-industry buyers.

@@ -1,0 +1,62 @@
+[
+  {
+    "document_id": "2026040100001001",
+    "borough": "1",
+    "block": "1392",
+    "lot": "1201",
+    "street_number": "432",
+    "street_name": "PARK AVENUE",
+    "addr_unit": "PH",
+    "bbl": "1013921201"
+  },
+  {
+    "document_id": "2026040200002002",
+    "borough": "1",
+    "block": "1392",
+    "lot": "52",
+    "street_number": "15",
+    "street_name": "CENTRAL PARK WEST",
+    "addr_unit": "20B",
+    "bbl": "1013920052"
+  },
+  {
+    "document_id": "2026040300003003",
+    "borough": "3",
+    "block": "945",
+    "lot": "18",
+    "street_number": "112",
+    "street_name": "REMSEN STREET",
+    "addr_unit": "",
+    "bbl": "3009450018"
+  },
+  {
+    "document_id": "2026040400004004",
+    "borough": "1",
+    "block": "1385",
+    "lot": "1101",
+    "street_number": "220",
+    "street_name": "CENTRAL PARK SOUTH",
+    "addr_unit": "50A",
+    "bbl": "1013851101"
+  },
+  {
+    "document_id": "2026040500005005",
+    "borough": "1",
+    "block": "1122",
+    "lot": "45",
+    "street_number": "9",
+    "street_name": "WEST 74TH STREET",
+    "addr_unit": "",
+    "bbl": "1011220045"
+  },
+  {
+    "document_id": "2026040600006006",
+    "borough": "1",
+    "block": "1080",
+    "lot": "22",
+    "street_number": "200",
+    "street_name": "EAST 65TH STREET",
+    "addr_unit": "3F",
+    "bbl": "1010800022"
+  }
+]

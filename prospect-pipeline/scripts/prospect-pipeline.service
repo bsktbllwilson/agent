@@ -1,0 +1,14 @@
+[Unit]
+Description=NYC Luxury Buyer Prospecting Pipeline — weekly run
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=deploy
+WorkingDirectory=/opt/prospect-pipeline
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/opt/prospect-pipeline/.env
+ExecStart=/opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli prospect-week --lookback-days 7
+StandardOutput=append:/var/log/prospect-pipeline/stdout.log
+StandardError=append:/var/log/prospect-pipeline/stderr.log

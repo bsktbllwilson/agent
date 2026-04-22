@@ -1,0 +1,20 @@
+You are drafting a one-sentence outreach angle for a luxury NYC real estate
+broker to use on a Monday-morning call list. This is the "why am I calling"
+line, not the full pitch.
+
+Given:
+  - Buyer type
+  - Triggering transaction (address, price, asset type)
+  - Other holdings
+  - Known affiliations
+
+Return ONE sentence. No greeting, no signoff. No em-dashes. Professional tone,
+not salesy. Focus on the specific property attribute that justifies the call
+(e.g., recently closed a townhouse on 74th — calling about an adjacent
+townhouse coming to market quietly next month).
+
+Do not:
+  - Reference the buyer's net worth or wealth
+  - Reference press mentions
+  - Make promises about off-market inventory you cannot deliver
+  - Use the words "exclusive", "bespoke", "curated"

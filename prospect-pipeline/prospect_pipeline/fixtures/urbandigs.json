@@ -1,0 +1,41 @@
+[
+  {
+    "contract_id": "UD-2026-0912",
+    "building": "111 WEST 57TH STREET",
+    "unit": "62",
+    "contract_date": "${TODAY-2}",
+    "contract_price": 12500000,
+    "asset_type": "condo",
+    "borough": "Manhattan",
+    "listing_agent": "Serena Boardman",
+    "listing_firm": "Sotheby's International Realty",
+    "selling_agent": "Bess Freedman",
+    "selling_firm": "Brown Harris Stevens"
+  },
+  {
+    "contract_id": "UD-2026-0917",
+    "building": "520 WEST 28TH STREET",
+    "unit": "24",
+    "contract_date": "${TODAY-4}",
+    "contract_price": 6800000,
+    "asset_type": "condo",
+    "borough": "Manhattan",
+    "listing_agent": "Carrie Chiang",
+    "listing_firm": "The Corcoran Group",
+    "selling_agent": "Jonathan Miller",
+    "selling_firm": "Douglas Elliman"
+  },
+  {
+    "contract_id": "UD-2026-0921",
+    "building": "53 WEST 53RD STREET",
+    "unit": "45A",
+    "contract_date": "${TODAY-1}",
+    "contract_price": 18300000,
+    "asset_type": "condo",
+    "borough": "Manhattan",
+    "listing_agent": "Nikki Field",
+    "listing_firm": "Sotheby's International Realty",
+    "selling_agent": "Paula Del Nunzio",
+    "selling_firm": "Brown Harris Stevens"
+  }
+]

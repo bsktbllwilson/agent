@@ -1,0 +1,219 @@
+# NYC Luxury Buyer Prospecting Pipeline
+
+A Python pipeline that monitors NYC real-estate transactions at **$4,000,000+**
+in Manhattan and Brooklyn, resolves the buyers behind them, enriches the
+contacts, classifies the buyer type, and produces a weekly **Prospect Sheet**
+— a CRM-ready list of named buyers with outreach angles.
+
+The $4M+ transactions are the **trigger event**. The product is the **buyer
+dossier**, not market analytics.
+
+## Why this exists
+
+Traditional "luxury market reports" produce PPSF charts that nobody calls on.
+This pipeline produces **names, work emails, work phones, and a reason to
+call** — the minimum viable Monday-morning call list.
+
+## What it does
+
+```
+              ┌──────────────── trigger sources (≥ $4M) ──────────────────┐
+              │                                                            │
+       ACRIS (condos + townhouses)   RPTT (co-ops)   UrbanDigs (contracts) │
+              └──────────────────────┬────────────────────────────────────┘
+                                     │
+                              cross-source dedup
+                                     │
+                     ┌──── buyer resolution cascade ─────┐
+                     │                                   │
+             Tier 1 ACRIS parties (named individual)     │
+             Tier 2 Marketproof LLC principals           │
+             Tier 3 PropertyShark + NY DOS filings       │
+             Tier 4 Press fuzzy-match                    │
+             Tier 5 ACRIS self-join (holdings)           │
+             Tier 6 UrbanDigs agents (parallel)          │
+                     └─────────────┬─────────────────────┘
+                                   │
+                          Clay contact enrichment
+                                   │
+                     Claude buyer classification
+                                   │
+                     Routing (direct / broker / attorney / managing agent)
+                                   │
+                 CSV + XLSX (5 tabs) + Monday briefing (md)
+                                   │
+                  Optional push → HubSpot / Salesforce
+```
+
+## Quick start
+
+```bash
+cd prospect-pipeline
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env                  # edit keys as they come online
+python -m prospect_pipeline.cli prospect-week --dry-run --lookback-days 30
+```
+
+`--dry-run` uses bundled fixtures and the heuristic classifier; it makes zero
+network calls. Outputs land in `./out/`.
+
+### Live run
+
+Fill in API keys in `.env`. At minimum, the live ACRIS + RPTT Socrata endpoints
+will work unauthenticated (rate-limited); adding `SOCRATA_APP_TOKEN` raises
+limits. Everything else has a stub that yields `None` when unconfigured, so the
+pipeline runs end-to-end at reduced hit-rate.
+
+```bash
+python -m prospect_pipeline.cli prospect-week --lookback-days 7
+```
+
+## Data sources — legitimacy + cost
+
+| Source                   | Purpose                                | Legal posture        | Cost       |
+|--------------------------|----------------------------------------|----------------------|------------|
+| ACRIS (Socrata)          | Deeds, BBL, parties                    | Public record        | Free       |
+| RPTT (Socrata / DOF)     | Co-op sales, all transfers             | Public record        | Free       |
+| UrbanDigs                | Manhattan contract-signed indicator    | Commercial API (TOS) | Paid       |
+| Marketproof              | LLC beneficial-owner unmasking         | Commercial API (TOS) | Paid       |
+| PropertyShark            | BBL filings, linked entities           | Commercial API (TOS) | Paid       |
+| NY DOS Public Inquiry    | LLC registered agent + service address | Public record        | Free (rate-limited) |
+| Press (RSS + HTML)       | Journalist-named buyers                | Respect robots.txt   | Free       |
+| Clay                     | Contact enrichment waterfall           | Commercial API (TOS) | Paid (credits) |
+| Anthropic (Claude)       | Buyer classification                   | Commercial API       | Paid (tokens) |
+| HubSpot / Salesforce     | CRM push                               | Commercial API       | Tenant dep.|
+
+Rough monthly spend for a low-volume shop (dozens of $4M+ deals/week):
+**$200-600** depending on Clay credits and Marketproof tier.
+
+## Hit-rate expectations (from a comparable pipeline)
+
+| Outcome                                           | Approx share |
+|--------------------------------------------------|--------------|
+| Tier 1 direct-named individual (condo/TH)        | 20-35%       |
+| Tier 2/3 LLC unmasked with named principal       | 30-45%       |
+| Tier 4 press-named buyer                         | 5-10%        |
+| Unresolved → indirect route (attorney/mg. agent) | 20-40%       |
+
+Work-email / work-phone resolution via Clay on named individuals: **~60-80%**
+depending on seniority and firm type (higher for finance/PE partners, lower
+for foreign buyers and retired wealth).
+
+## CLI
+
+```
+prospect-pipeline prospect-week [--lookback-days N] [--dry-run]
+prospect-pipeline resolve-buyer <name_or_llc>
+prospect-pipeline holdings-report <name>
+prospect-pipeline mark-contacted <prospect_id> [--notes ...]
+prospect-pipeline do-not-contact <prospect_id>
+prospect-pipeline push-to-crm <prospect_id> [--target hubspot|salesforce]
+prospect-pipeline seed-agents <building_address>
+prospect-pipeline backfill --start YYYY-MM-DD --end YYYY-MM-DD
+prospect-pipeline init-db
+```
+
+## Weekly outputs
+
+Written to `$PIPELINE_OUTPUT_DIR` (default `./out`):
+
+- `prospects_YYYY-MM-DD.csv` — one row per prospect, CRM-ready
+- `prospects_YYYY-MM-DD.xlsx` — five tabs:
+  - **Hot Prospects** — high-confidence + work contact (the Monday call list)
+  - **Warm Leads** — named but missing contact, or medium confidence
+  - **Indirect Outreach** — unresolved + attorney / managing-agent route
+  - **Contract Signed** — UrbanDigs contract-signed watchlist (closing 30-60d)
+  - **Holdings Patterns** — buyers seen 2+ times
+- `briefing_YYYY-MM-DD.md` — one-page exec summary with top-5 call list
+
+## Scheduling
+
+### cron (Monday 8am ET)
+
+```cron
+# /etc/cron.d/prospect-pipeline
+TZ=America/New_York
+0 8 * * MON  deploy  cd /opt/prospect-pipeline && /opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli prospect-week --lookback-days 7 >> /var/log/prospect-pipeline/cron.log 2>&1
+```
+
+### systemd timer
+
+`/etc/systemd/system/prospect-pipeline.service`:
+
+```ini
+[Unit]
+Description=NYC Luxury Buyer Prospecting Pipeline — weekly run
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=deploy
+WorkingDirectory=/opt/prospect-pipeline
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/opt/prospect-pipeline/.env
+ExecStart=/opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli prospect-week --lookback-days 7
+```
+
+`/etc/systemd/system/prospect-pipeline.timer`:
+
+```ini
+[Unit]
+Description=Weekly prospect pipeline — Monday 8am ET
+
+[Timer]
+OnCalendar=Mon *-*-* 08:00 America/New_York
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+Enable with:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now prospect-pipeline.timer
+```
+
+## Storage
+
+Everything persists in a single SQLite file at `$PIPELINE_DB_PATH`
+(default `./prospect_pipeline.db`). Tables:
+
+| Table                     | Purpose                                                    |
+|---------------------------|------------------------------------------------------------|
+| `trigger_events`          | Normalized $4M+ transactions (ACRIS/RPTT/UrbanDigs)        |
+| `raw_acris`, `raw_rptt`, `raw_urbandigs` | Audit trail of upstream responses           |
+| `prospects`               | Primary product — one row per resolved buyer               |
+| `buyer_resolutions`       | Append-only log per tier, per event, with evidence JSON    |
+| `contact_enrichment_log`  | Clay credits consumed                                      |
+| `llc_registry`            | Cached NY DOS lookups (indefinite TTL)                     |
+| `press_index`             | Ingested press mentions                                    |
+| `managing_agents`         | YAML seed + scraped additions                              |
+| `outreach_status`         | Manual tracking (`mark-contacted`, `do-not-contact`)       |
+| `run_log`                 | Per-run metrics                                            |
+
+## Non-goals (intentional)
+
+We **do not**:
+
+- Look up personal email, personal phone, or home addresses. Work contacts only.
+- Use data-broker services (Spokeo, BeenVerified, Intelius).
+- Scrape LinkedIn directly. Clay uses LinkedIn Sales Navigator via the legitimate API.
+- Scrape StreetEasy, Zillow, Redfin, or MLS member sites.
+- Produce market analytics (PPSF charts, velocity, absorption) unless they
+  surface a wealth signal for a specific buyer.
+
+See `DPA.md` for the full data-handling posture.
+
+## Contributing / maintenance
+
+- `managing_agents.yaml` and `law_firms.yaml` are meant to be grown over time.
+  Use `prospect-pipeline seed-agents` as buildings surface in the pipeline.
+- Prompts live in `prompts/` with version suffixes; bump the version when you
+  change the classifier's expected JSON shape.
+- Fixtures under `prospect_pipeline/fixtures/` drive `--dry-run`. Keep them
+  realistic and keep `${TODAY-N}` placeholders so the lookback window exercise
+  paths stay green.

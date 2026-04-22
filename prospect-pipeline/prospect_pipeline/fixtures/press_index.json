@@ -1,0 +1,32 @@
+[
+  {
+    "publication": "The Real Deal",
+    "url": "https://therealdeal.com/sample/220-cps-billionaire-row-closing",
+    "title": "Billionaire Row closing: 220 Central Park South penthouse trades for $22.5M",
+    "published_at": "${TODAY-10}",
+    "addresses_json": "[\"220 Central Park South, 50A\"]",
+    "price_mentions_json": "[22500000]",
+    "named_buyers_json": "[\"JAMES PATRICK O'HARA\"]",
+    "excerpt": "Hedge-fund founder James Patrick O'Hara is the buyer behind CPS 50 Holdings, sources said, closing on unit 50A at 220 Central Park South for $22.5M."
+  },
+  {
+    "publication": "Mansion Global",
+    "url": "https://www.mansionglobal.com/sample/15-cpw-20b",
+    "title": "15 Central Park West condo trades for $14.2M",
+    "published_at": "${TODAY-8}",
+    "addresses_json": "[\"15 Central Park West, 20B\"]",
+    "price_mentions_json": "[14200000]",
+    "named_buyers_json": "[]",
+    "excerpt": "The buyer is an entity named 15 CPW 20B LLC; the principal could not be reached."
+  },
+  {
+    "publication": "NY Post Real Estate",
+    "url": "https://nypost.com/real-estate/sample/remsen-street-townhouse",
+    "title": "Brooklyn Heights townhouse on Remsen sells for $6.1M",
+    "published_at": "${TODAY-9}",
+    "addresses_json": "[\"112 Remsen Street\"]",
+    "price_mentions_json": "[6100000]",
+    "named_buyers_json": "[]",
+    "excerpt": "Buyer took title through a trust; neighbors speculate about the new owner."
+  }
+]

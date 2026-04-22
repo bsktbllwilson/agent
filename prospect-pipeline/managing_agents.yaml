@@ -1,0 +1,158 @@
+# Top NYC managing agents for co-op / condo buildings.
+# Used as Tier 9 indirect outreach routes when buyer resolution fails
+# (typical for anonymous LLCs or co-op transfers without party-name coverage).
+#
+# Extend via CLI: `prospect-pipeline seed-agents "<building_address>"`.
+#
+# Schema:
+#   name:           canonical firm name
+#   aka:            alternate spellings seen on filings
+#   phone:          general line (work contact only)
+#   email:          general inbox (work contact only)
+#   website:
+#   buildings:      list of known buildings (address strings); grows over time
+#   notes:          sourcing notes
+managing_agents:
+  - name: Douglas Elliman Property Management
+    aka: [Douglas Elliman PM, DE Property Management]
+    phone: "+1-212-692-6162"
+    email: info@elliman.com
+    website: https://www.elliman.com/property-management
+    buildings: []
+    notes: One of the largest residential managers in Manhattan.
+
+  - name: FirstService Residential New York
+    aka: [FirstService Residential, FSR]
+    phone: "+1-212-634-8900"
+    email: ny.info@fsresidential.com
+    website: https://www.fsresidential.com/new-york
+    buildings: []
+    notes: Largest property manager in NYC by units under management.
+
+  - name: Halstead Management Company
+    aka: [Halstead Management]
+    phone: "+1-212-381-2557"
+    email: management@halstead.com
+    website: https://www.halstead.com/management
+    buildings: []
+    notes: Boutique co-op/condo manager, East Side concentration.
+
+  - name: Rudin Management
+    aka: [Rudin]
+    phone: "+1-212-407-2400"
+    email: info@rudin.com
+    website: https://www.rudin.com
+    buildings: []
+    notes: Owner/operator of institutional-grade buildings.
+
+  - name: Brown Harris Stevens Residential Management
+    aka: [BHS Residential Management, BHSRM]
+    phone: "+1-212-381-2500"
+    email: residentialmanagement@bhsusa.com
+    website: https://www.bhsusa.com
+    buildings: []
+
+  - name: Orsid New York
+    aka: [Orsid Realty]
+    phone: "+1-212-461-2800"
+    email: info@orsidny.com
+    website: https://www.orsidny.com
+    buildings: []
+
+  - name: Maxwell-Kates
+    aka: [Maxwell Kates]
+    phone: "+1-212-684-8282"
+    email: info@maxwellkates.com
+    website: https://www.maxwellkates.com
+    buildings: []
+
+  - name: Midboro Management
+    aka: [Midboro]
+    phone: "+1-212-757-6800"
+    email: info@midboro.com
+    website: https://www.midboro.com
+    buildings: []
+
+  - name: Akam Associates
+    aka: [AKAM]
+    phone: "+1-212-986-0001"
+    email: info@akam.com
+    website: https://www.akam.com
+    buildings: []
+
+  - name: Cooper Square Realty
+    aka: [Cooper Square]
+    phone: "+1-212-634-5460"
+    email: info@coopersquare.com
+    website: https://www.coopersquare.com
+    buildings: []
+
+  - name: Charles H. Greenthal Management
+    aka: [Greenthal, CHG Management]
+    phone: "+1-212-340-9300"
+    email: info@chgrealty.com
+    website: https://www.chgrealty.com
+    buildings: []
+
+  - name: Rose Associates
+    aka: [Rose]
+    phone: "+1-212-210-6500"
+    email: info@rosenyc.com
+    website: https://www.rosenyc.com
+    buildings: []
+
+  - name: Century Management Services
+    aka: [Century Management]
+    phone: "+1-212-560-6400"
+    email: info@centurymgmt.com
+    website: https://www.centurymgmt.com
+    buildings: []
+
+  - name: Argo Real Estate
+    aka: [Argo]
+    phone: "+1-212-896-8600"
+    email: info@argo.com
+    website: https://www.argo.com
+    buildings: []
+
+  - name: Blue Woods Management Group
+    aka: [Blue Woods]
+    phone: "+1-212-645-4400"
+    email: info@bluewoodsmanagement.com
+    website: https://www.bluewoodsmanagement.com
+    buildings: []
+
+  - name: Gumley Haft
+    aka: [Gumley-Haft]
+    phone: "+1-212-371-6699"
+    email: info@gumleyhaft.com
+    website: https://www.gumleyhaft.com
+    buildings: []
+
+  - name: Kaled Management
+    aka: [Kaled]
+    phone: "+1-516-876-4800"
+    email: info@kaled.com
+    website: https://www.kaled.com
+    buildings: []
+
+  - name: Tudor Realty Services
+    aka: [Tudor Realty]
+    phone: "+1-212-557-0300"
+    email: info@tudorrealty.com
+    website: https://www.tudorrealty.com
+    buildings: []
+
+  - name: Solstice Residential Group
+    aka: [Solstice]
+    phone: "+1-212-465-1900"
+    email: info@solsticenyc.com
+    website: https://www.solsticenyc.com
+    buildings: []
+
+  - name: Buchbinder & Warren
+    aka: [Buchbinder Warren]
+    phone: "+1-212-473-1000"
+    email: info@buchbinder.com
+    website: https://www.buchbinder.com
+    buildings: []

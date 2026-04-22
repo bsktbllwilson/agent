@@ -1,0 +1,50 @@
+[
+  {
+    "document_id": "2026040100001001",
+    "doc_type": "DEED",
+    "doc_amount": "8750000",
+    "recorded_borough": "1",
+    "document_date": "${TODAY-5}T00:00:00.000",
+    "recorded_datetime": "${TODAY-4}T10:12:00.000"
+  },
+  {
+    "document_id": "2026040200002002",
+    "doc_type": "DEED",
+    "doc_amount": "14200000",
+    "recorded_borough": "1",
+    "document_date": "${TODAY-8}T00:00:00.000",
+    "recorded_datetime": "${TODAY-7}T14:22:00.000"
+  },
+  {
+    "document_id": "2026040300003003",
+    "doc_type": "DEEDO",
+    "doc_amount": "6100000",
+    "recorded_borough": "3",
+    "document_date": "${TODAY-10}T00:00:00.000",
+    "recorded_datetime": "${TODAY-9}T09:48:00.000"
+  },
+  {
+    "document_id": "2026040400004004",
+    "doc_type": "DEED",
+    "doc_amount": "22500000",
+    "recorded_borough": "1",
+    "document_date": "${TODAY-12}T00:00:00.000",
+    "recorded_datetime": "${TODAY-11}T16:05:00.000"
+  },
+  {
+    "document_id": "2026040500005005",
+    "doc_type": "DEED",
+    "doc_amount": "4500000",
+    "recorded_borough": "1",
+    "document_date": "${TODAY-14}T00:00:00.000",
+    "recorded_datetime": "${TODAY-13}T11:30:00.000"
+  },
+  {
+    "document_id": "2026040600006006",
+    "doc_type": "DEED",
+    "doc_amount": "1850000",
+    "recorded_borough": "1",
+    "document_date": "${TODAY-3}T00:00:00.000",
+    "recorded_datetime": "${TODAY-3}T08:15:00.000"
+  }
+]
