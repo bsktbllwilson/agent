@@ -1,33 +1,81 @@
 import Link from "next/link";
-import { getCurrentUser, requireAdmin } from "@/lib/auth";
+import { getCurrentUser, getRole, requireAdmin } from "@/lib/auth";
+import { getListingStatusCounts } from "@/lib/admin-listings";
 import { Wordmark } from "@/components/Wordmark";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   await requireAdmin();
-  const user = await getCurrentUser();
-  return (
-    <main className="min-h-[100dvh] container-px py-16">
-      <div className="mx-auto max-w-[960px]">
-        <Link href="/" className="inline-block">
-          <Wordmark tone="ink" />
-        </Link>
-        <h1 className="mt-10 font-display text-5xl leading-tight text-ink">
-          Admin
-        </h1>
-        <p className="mt-3 text-ink/70">
-          Signed in as <strong>{user?.email}</strong> — role{" "}
-          <strong>{String(user?.app_metadata?.role ?? "unknown")}</strong>
-        </p>
+  const [user, role, counts] = await Promise.all([
+    getCurrentUser(),
+    getRole(),
+    getListingStatusCounts(),
+  ]);
 
-        <section className="mt-12 grid gap-4 sm:grid-cols-2">
-          <AdminCard title="Listings" href="#" body="Create, edit, archive" />
-          <AdminCard title="Users" href="#" body="Search, promote, ban" />
-          <AdminCard title="Partners" href="#" body="Manage pro partners" />
-          <AdminCard title="Inquiries" href="#" body="Buyer / seller messages" />
-        </section>
+  return (
+    <main className="min-h-[100dvh] pb-24">
+      <div className="container-px pt-10">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between">
+          <Link href="/" aria-label="Pass The Plate home">
+            <Wordmark tone="ink" />
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/listings"
+              className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
+            >
+              Site
+            </Link>
+            <Link
+              href="/account"
+              className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
+            >
+              Account
+            </Link>
+          </div>
+        </div>
       </div>
+
+      <section className="container-px mt-12">
+        <div className="mx-auto max-w-[1440px]">
+          <h1 className="text-section text-ink">
+            Admin <span className="italic">home</span>
+          </h1>
+          <p className="mt-2 text-ink/70">
+            Signed in as <strong>{user?.email}</strong> — role{" "}
+            <strong>{role ?? "unknown"}</strong>
+          </p>
+
+          <section className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <AdminCard
+              title="Listings"
+              href="/admin/listings?status=pending"
+              body="Review, approve, reject, feature"
+              badge={
+                counts.pending > 0
+                  ? `${counts.pending} pending`
+                  : `${counts.published} live`
+              }
+              badgeTone={counts.pending > 0 ? "warn" : "neutral"}
+            />
+            <AdminCard
+              title="Inquiries"
+              href="#"
+              body="Buyer / seller messages"
+              badge="Soon"
+              badgeTone="neutral"
+            />
+            <AdminCard
+              title="Users"
+              href="#"
+              body="Search, promote, ban"
+              badge="Soon"
+              badgeTone="neutral"
+            />
+          </section>
+        </div>
+      </section>
     </main>
   );
 }
@@ -36,18 +84,35 @@ function AdminCard({
   title,
   body,
   href,
+  badge,
+  badgeTone,
 }: {
   title: string;
   body: string;
   href: string;
+  badge?: string;
+  badgeTone?: "warn" | "neutral";
 }) {
+  const badgeClass =
+    badgeTone === "warn"
+      ? "bg-orange text-cream"
+      : "bg-ink/5 text-ink/70";
   return (
-    <a
+    <Link
       href={href}
-      className="block rounded-[1.5rem] border border-ink/10 bg-white p-6 transition-colors hover:border-ink"
+      className="flex flex-col gap-3 rounded-[1.5rem] border border-ink/10 bg-white p-6 transition-colors hover:border-ink"
     >
-      <h2 className="font-display text-2xl text-ink">{title}</h2>
-      <p className="mt-1 text-sm text-ink/60">{body}</p>
-    </a>
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-2xl text-ink">{title}</h2>
+        {badge && (
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass}`}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
+      <p className="text-sm text-ink/60">{body}</p>
+    </Link>
   );
 }

@@ -71,7 +71,8 @@ Fonts are loaded from Adobe Typekit kit `cub1hgl` via a `<link>` in
 | `/account` | `requireSignedIn` — profile + saved listings grid + sign-out. |
 | `/signin` | Magic-link (Supabase OTP). Respects `?next=` for post-login redirect (validated same-origin). |
 | `/auth/callback` | PKCE code exchange. |
-| `/admin` | `requireAdmin` gate — reads `app_metadata.role`. |
+| `/admin` | `requireAdmin` gate + quick-link cards with live pending count. |
+| `/admin/listings` | Tabbed approval queue: Pending / Approved / Rejected / Drafts. Per-row actions: **Approve & publish**, **Reject with feedback**, **Feature / Unfeature**, **Un-publish**, **Reopen for review**, **Preview**. |
 
 ## Seller flow & RLS
 

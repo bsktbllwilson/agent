@@ -25,7 +25,9 @@ export default async function EditListingPage({ params }: { params: Params }) {
   if (!listing) notFound();
 
   const s = formatStatus(listing.status);
-  const isEditable = s.tone === "draft" || s.tone === "pending";
+  const isEditable =
+    s.tone === "draft" || s.tone === "pending" || s.tone === "rejected";
+  const canSubmit = s.tone === "draft" || s.tone === "rejected";
 
   async function submit() {
     "use server";
@@ -61,6 +63,17 @@ export default async function EditListingPage({ params }: { params: Params }) {
             listing={listing}
             submitAction={submit}
           />
+
+          {listing.rejection_reason && s.tone === "rejected" && (
+            <div className="mt-4 rounded-[1.25rem] border border-orange/40 bg-orange/10 p-5">
+              <div className="text-sm font-medium uppercase tracking-[0.12em] text-ink/70">
+                Reviewer feedback
+              </div>
+              <p className="mt-2 whitespace-pre-line text-base text-ink/90">
+                {listing.rejection_reason}
+              </p>
+            </div>
+          )}
 
           <form
             action={updateListing}
@@ -273,8 +286,10 @@ export default async function EditListingPage({ params }: { params: Params }) {
                 >
                   Save changes
                 </button>
-                {s.tone === "draft" && (
-                  <SubmitForReviewButton action={submit} />
+                {canSubmit && (
+                  <SubmitForReviewButton action={submit} label={
+                    s.tone === "rejected" ? "Resubmit for review" : "Submit for review"
+                  } />
                 )}
               </div>
             </div>
@@ -338,8 +353,11 @@ function StatusBanner({
             <ExternalLink aria-hidden className="size-3.5" />
           </Link>
         )}
-        {tone === "draft" && (
-          <SubmitForReviewButton action={submitAction} size="md" />
+        {(tone === "draft" || tone === "rejected") && (
+          <SubmitForReviewButton
+            action={submitAction}
+            label={tone === "rejected" ? "Resubmit for review" : "Submit for review"}
+          />
         )}
       </div>
     </div>
@@ -348,19 +366,18 @@ function StatusBanner({
 
 function SubmitForReviewButton({
   action,
-  size = "md",
+  label = "Submit for review",
 }: {
   action: () => Promise<void>;
-  size?: "md";
+  label?: string;
 }) {
-  void size;
   return (
     <form action={action}>
       <button
         type="submit"
         className="rounded-full bg-orange px-5 py-2 text-sm font-medium text-cream transition-colors hover:bg-[rgb(210,68,28)]"
       >
-        Submit for review
+        {label}
       </button>
     </form>
   );

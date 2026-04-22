@@ -37,6 +37,9 @@ export type Listing = {
   created_at: string;
   updated_at: string;
   published_at: string | null;
+  approved_by?: string | null;
+  approved_at?: string | null;
+  rejection_reason?: string | null;
 };
 
 export type ListingFilters = {
