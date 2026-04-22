@@ -71,17 +71,20 @@ def _normalize_address(legal: dict) -> str:
     return base
 
 
-async def _fetch_master(lookback_days: int) -> list[dict]:
-    start = (date.today() - timedelta(days=lookback_days)).isoformat()
+async def _fetch_master(lookback_days: int, end_date: date | None = None) -> list[dict]:
+    anchor = end_date or date.today()
+    start = (anchor - timedelta(days=lookback_days)).isoformat()
     boroughs = ",".join(f"'{b}'" for b in BOROUGHS)
     deeds = ",".join(f"'{d}'" for d in DEED_TYPES)
-    where = (
-        f"doc_type in ({deeds}) "
-        f"AND doc_amount >= {MIN_PRICE} "
-        f"AND recorded_borough in ({boroughs}) "
-        f"AND document_date >= '{start}T00:00:00.000'"
-    )
-    return await socrata.query_all(MASTER_URL, where)
+    where_clauses = [
+        f"doc_type in ({deeds})",
+        f"doc_amount >= {MIN_PRICE}",
+        f"recorded_borough in ({boroughs})",
+        f"document_date >= '{start}T00:00:00.000'",
+    ]
+    if end_date:
+        where_clauses.append(f"document_date <= '{end_date.isoformat()}T23:59:59.999'")
+    return await socrata.query_all(MASTER_URL, " AND ".join(where_clauses))
 
 
 async def _fetch_legals(doc_ids: list[str]) -> dict[str, dict]:
@@ -124,9 +127,10 @@ async def _fetch_parties(doc_ids: list[str]) -> dict[str, dict[str, list[str]]]:
     return out
 
 
-def _fixture_fetch(lookback_days: int) -> tuple[list[dict], dict[str, dict], dict[str, dict[str, list[str]]]]:
+def _fixture_fetch(lookback_days: int, end_date: date | None = None) -> tuple[list[dict], dict[str, dict], dict[str, dict[str, list[str]]]]:
     """Return fixture data filtered to lookback window + $4M+ + boroughs."""
-    cutoff = date.today() - timedelta(days=lookback_days)
+    anchor = end_date or date.today()
+    cutoff = anchor - timedelta(days=lookback_days)
     master = render("acris_master.json")
     legals = render("acris_legals.json")
     parties = render("acris_parties.json")
@@ -138,6 +142,8 @@ def _fixture_fetch(lookback_days: int) -> tuple[list[dict], dict[str, dict], dic
         except ValueError:
             continue
         if ddate < cutoff:
+            continue
+        if end_date and ddate > end_date:
             continue
         if m.get("doc_type") not in DEED_TYPES:
             continue
@@ -161,15 +167,18 @@ def _fixture_fetch(lookback_days: int) -> tuple[list[dict], dict[str, dict], dic
     return keep_master, legals_map, parties_map
 
 
-async def ingest(lookback_days: int, *, dry_run: bool) -> list[dict]:
+async def ingest(lookback_days: int, *, dry_run: bool, end_date: date | None = None) -> list[dict]:
     """Ingest ACRIS transactions. Persists raw rows to raw_acris and
-    normalized records to trigger_events. Returns list of normalized events."""
+    normalized records to trigger_events. Returns list of normalized events.
+
+    `end_date` upper-bounds the window for historical backfills; defaults to
+    today for normal weekly runs."""
     if dry_run:
         log.info("ACRIS: dry-run mode, using built-in fixtures")
-        master, legals_map, parties_map = _fixture_fetch(lookback_days)
+        master, legals_map, parties_map = _fixture_fetch(lookback_days, end_date)
     else:
-        log.info("ACRIS: fetching master (lookback=%d days)", lookback_days)
-        master = await _fetch_master(lookback_days)
+        log.info("ACRIS: fetching master (lookback=%d days, end=%s)", lookback_days, end_date or "today")
+        master = await _fetch_master(lookback_days, end_date)
         log.info("ACRIS: master returned %d rows", len(master))
         doc_ids = [m["document_id"] for m in master]
         legals_map = await _fetch_legals(doc_ids)

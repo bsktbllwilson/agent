@@ -70,7 +70,11 @@ def _borough_int(label: str | None) -> int | None:
     return {"manhattan": 1, "brooklyn": 3}.get(s)
 
 
-async def ingest(lookback_days: int, *, dry_run: bool) -> list[dict]:
+async def ingest(lookback_days: int, *, dry_run: bool, end_date=None) -> list[dict]:
+    # UrbanDigs contract-signed data is a leading indicator; backfills typically
+    # don't need historical contracts (they've already closed), so we accept
+    # end_date for API symmetry but don't use it for filtering beyond lookback.
+    _ = end_date
     if dry_run:
         log.info("UrbanDigs: dry-run mode, using built-in fixtures")
         rows = _fixture_fetch(lookback_days)

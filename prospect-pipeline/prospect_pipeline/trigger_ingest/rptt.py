@@ -100,15 +100,18 @@ def _flag_family_transfer(row: dict) -> bool:
     return bool(btoks & stoks)
 
 
-async def _fetch_socrata(lookback_days: int) -> list[dict]:
-    start = (date.today() - timedelta(days=lookback_days)).isoformat()
+async def _fetch_socrata(lookback_days: int, end_date: date | None = None) -> list[dict]:
+    anchor = end_date or date.today()
+    start = (anchor - timedelta(days=lookback_days)).isoformat()
     boroughs = ",".join(f"'{b}'" for b in BOROUGHS)
-    where = (
-        f"sale_price >= {MIN_PRICE} "
-        f"AND borough in ({boroughs}) "
-        f"AND sale_date >= '{start}T00:00:00.000'"
-    )
-    return await socrata.query_all(DATASET_URL, where)
+    clauses = [
+        f"sale_price >= {MIN_PRICE}",
+        f"borough in ({boroughs})",
+        f"sale_date >= '{start}T00:00:00.000'",
+    ]
+    if end_date:
+        clauses.append(f"sale_date <= '{end_date.isoformat()}T23:59:59.999'")
+    return await socrata.query_all(DATASET_URL, " AND ".join(clauses))
 
 
 async def _fetch_fallback_xlsx(lookback_days: int) -> list[dict]:
@@ -164,8 +167,9 @@ async def _fetch_fallback_xlsx(lookback_days: int) -> list[dict]:
     return rows
 
 
-def _fixture_fetch(lookback_days: int) -> list[dict]:
-    cutoff = date.today() - timedelta(days=lookback_days)
+def _fixture_fetch(lookback_days: int, end_date: date | None = None) -> list[dict]:
+    anchor = end_date or date.today()
+    cutoff = anchor - timedelta(days=lookback_days)
     rows = render("rptt.json")
     keep = []
     for r in rows:
@@ -174,6 +178,8 @@ def _fixture_fetch(lookback_days: int) -> list[dict]:
         except (ValueError, KeyError):
             continue
         if sd < cutoff:
+            continue
+        if end_date and sd > end_date:
             continue
         if str(r.get("borough")) not in BOROUGHS:
             continue
@@ -185,16 +191,16 @@ def _fixture_fetch(lookback_days: int) -> list[dict]:
     return keep
 
 
-async def ingest(lookback_days: int, *, dry_run: bool) -> list[dict]:
+async def ingest(lookback_days: int, *, dry_run: bool, end_date: date | None = None) -> list[dict]:
     """Ingest RPTT transactions. Returns normalized events flagged as
     `source="rptt_only"`; dedupe against ACRIS happens in `deduper`."""
     if dry_run:
         log.info("RPTT: dry-run mode, using built-in fixtures")
-        rows = _fixture_fetch(lookback_days)
+        rows = _fixture_fetch(lookback_days, end_date)
     else:
-        log.info("RPTT: fetching (lookback=%d days)", lookback_days)
+        log.info("RPTT: fetching (lookback=%d days, end=%s)", lookback_days, end_date or "today")
         try:
-            rows = await _fetch_socrata(lookback_days)
+            rows = await _fetch_socrata(lookback_days, end_date)
         except httpx.HTTPError as e:
             log.warning("RPTT Socrata resource failed (%s); falling back to rolling sales", e)
             rows = await _fetch_fallback_xlsx(lookback_days)

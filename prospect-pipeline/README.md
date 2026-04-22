@@ -143,6 +143,38 @@ prospect-pipeline send-briefing \
   --xlsx out/prospects_2026-04-22.xlsx
 ```
 
+## Historical backfill (recommended pre-launch step)
+
+Before the first Monday run, seed the holdings self-join with 90 days of
+history so Tier 5 is useful from day one instead of requiring three months of
+weekly accumulation. `--ingest-only` skips the resolution cascade, contact
+enrichment, classification, and output writing — so it only hits free Socrata
+endpoints and never touches Marketproof / Clay / Anthropic credits on stale
+deals.
+
+```bash
+# On the server, 90-day backfill of ACRIS + RPTT into trigger_events + raw_*:
+prospect-pipeline backfill \
+  --start 2026-01-22 --end 2026-04-22 \
+  --ingest-only
+```
+
+What happens:
+- ACRIS master/legals/parties fetched with `document_date` bounded by `--start`/`--end`
+- RPTT fetched with `sale_date` bounded by the same window (falls back to DOF rolling-sales XLSX if the Socrata resource 404s)
+- Cross-source dedup runs (RPTT rows matching ACRIS get flagged `rptt_matched`)
+- `run_log` gets a `mode=ingest_only` row
+- **No prospects written, no briefing, no email**
+
+After backfill, the first live weekly run's Tier 5 will surface historical
+holdings — a buyer who closed two $4M+ properties in the backfill window
+shows up correctly with `holdings_count=1`.
+
+Full backfill (i.e. also run the cascade + enrichment on historical deals)
+is possible by omitting `--ingest-only`, but strongly discouraged: it spends
+credits resolving stale buyers whose deals already closed, and the briefing
+it produces is a 90-day aggregate that's not actionable.
+
 ## Repeat-buyer rollup
 
 Resolved buyers roll up across weeks — a buyer who closes two $4M+ properties

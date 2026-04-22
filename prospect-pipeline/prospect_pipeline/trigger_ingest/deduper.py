@@ -96,13 +96,18 @@ def dedupe() -> dict[str, int]:
 
 def active_events() -> list[dict[str, Any]]:
     """Return all trigger events that should drive buyer resolution this run
-    (i.e., ACRIS + RPTT-only orphans + UrbanDigs). Excludes `rptt_matched`."""
+    (i.e., ACRIS + RPTT-only orphans + UrbanDigs). Excludes `rptt_matched`.
+
+    Ordered OLDEST-first so that repeat-buyer upserts let the newest event
+    win: the final prospect row points at the most recent trigger as
+    `last_trigger_event_id` and older events appear as `other_nyc_holdings`.
+    """
     with tx() as conn:
         rows = conn.execute(
             """
             SELECT * FROM trigger_events
             WHERE source IN ('acris', 'rptt_only', 'urbandigs')
-            ORDER BY COALESCE(sale_date, contract_date) DESC
+            ORDER BY COALESCE(sale_date, contract_date) ASC
             """
         ).fetchall()
         return [dict(r) for r in rows]

@@ -43,7 +43,22 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-async def _run_prospect_week(lookback_days: int, dry_run: bool) -> dict:
+async def _run_prospect_week(
+    lookback_days: int,
+    dry_run: bool,
+    *,
+    end_date: date | None = None,
+    ingest_only: bool = False,
+) -> dict:
+    """Run the pipeline.
+
+    `end_date`:     upper-bound for trigger ingest (used by backfills).
+    `ingest_only`:  populate trigger_events + raw_* audit tables then stop.
+                    Skips cascade / enrich / classify / write / email. Useful
+                    for historical backfills where we want to seed holdings
+                    self-join data without burning paid-API credits on stale
+                    deals or grinding through NY DOS rate limits.
+    """
     setup_logging()
     init_db()
     managing_agents.seed_database()
@@ -57,9 +72,9 @@ async def _run_prospect_week(lookback_days: int, dry_run: bool) -> dict:
 
     # Trigger ingest
     log.info("=== trigger ingest ===")
-    acris_events = await acris.ingest(lookback_days, dry_run=dry_run)
-    rptt_events = await rptt.ingest(lookback_days, dry_run=dry_run)
-    ud_events = await urbandigs.ingest(lookback_days, dry_run=dry_run)
+    acris_events = await acris.ingest(lookback_days, dry_run=dry_run, end_date=end_date)
+    rptt_events = await rptt.ingest(lookback_days, dry_run=dry_run, end_date=end_date)
+    ud_events = await urbandigs.ingest(lookback_days, dry_run=dry_run, end_date=end_date)
     api_calls["acris"] = len(acris_events)
     api_calls["rptt"] = len(rptt_events)
     api_calls["urbandigs"] = len(ud_events)
@@ -67,6 +82,40 @@ async def _run_prospect_week(lookback_days: int, dry_run: bool) -> dict:
     # Dedupe
     log.info("=== dedupe ===")
     stats = deduper.dedupe()
+
+    # Ingest-only: log the run and return without running the cascade.
+    if ingest_only:
+        finished = _now()
+        with tx() as conn:
+            conn.execute(
+                """
+                INSERT INTO run_log
+                    (started_at, finished_at, mode, dry_run, lookback_days,
+                     trigger_events_ingested, prospects_resolved, api_calls,
+                     credits_consumed, errors, notes)
+                VALUES (?, ?, 'ingest_only', ?, ?, ?, 0, ?, '{}', '[]', ?)
+                """,
+                (
+                    started, finished, 1 if dry_run else 0, lookback_days,
+                    len(acris_events) + len(rptt_events) + len(ud_events),
+                    as_json(api_calls),
+                    f"end_date={end_date} dedupe_matched={stats['matched']}",
+                ),
+            )
+        log.info(
+            "ingest-only complete: acris=%d rptt=%d urbandigs=%d dedupe_matched=%d",
+            len(acris_events), len(rptt_events), len(ud_events), stats["matched"],
+        )
+        return {
+            "mode": "ingest_only",
+            "totals": {
+                "acris": len(acris_events),
+                "rptt_only": len(rptt_events) - stats["matched"],
+                "rptt_matched": stats["matched"],
+                "urbandigs": len(ud_events),
+            },
+            "end_date": end_date.isoformat() if end_date else None,
+        }
 
     # Active set
     events = deduper.active_events()
@@ -388,15 +437,34 @@ def seed_agents(building_address: str, dry_run: bool):
 @click.option("--start", "start_", required=True, type=click.DateTime(formats=["%Y-%m-%d"]))
 @click.option("--end", "end_", required=True, type=click.DateTime(formats=["%Y-%m-%d"]))
 @click.option("--dry-run", is_flag=True, default=False)
-def backfill(start_: datetime, end_: datetime, dry_run: bool):
-    """Historical backfill over (start, end]. Uses the same pipeline with
-    an extended lookback computed from the range."""
-    today = date.today()
+@click.option("--ingest-only", is_flag=True, default=False,
+              help="Populate trigger_events + raw_* only; skip the cascade, "
+                   "enrichment, classification, and output writing. "
+                   "Recommended for multi-month historical backfills.")
+def backfill(start_: datetime, end_: datetime, dry_run: bool, ingest_only: bool):
+    """Historical backfill over [start, end]. Honors both bounds so you can
+    backfill a specific quarter without re-ingesting newer data.
+
+    Typical use: seed the holdings self-join with 90 days of history so that
+    Tier 5 (holdings pattern) produces useful results from the very first
+    live weekly run instead of taking 3 months of weekly accumulation.
+
+    Example:
+        prospect-pipeline backfill --start 2026-01-22 --end 2026-04-22 --ingest-only
+    """
     start_d = start_.date()
-    if start_d > today:
-        raise click.ClickException("start date is in the future")
-    lookback = (today - start_d).days
-    result = asyncio.run(_run_prospect_week(lookback, dry_run))
+    end_d = end_.date()
+    if start_d > end_d:
+        raise click.ClickException("--start must be on or before --end")
+    if end_d > date.today():
+        raise click.ClickException("--end is in the future")
+    lookback = (end_d - start_d).days
+    result = asyncio.run(_run_prospect_week(
+        lookback_days=lookback,
+        dry_run=dry_run,
+        end_date=end_d,
+        ingest_only=ingest_only,
+    ))
     click.echo(json.dumps(result, indent=2))
 
 
