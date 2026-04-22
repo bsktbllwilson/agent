@@ -20,6 +20,7 @@ from typing import Any
 import click
 
 from . import __version__
+from . import healthcheck as healthcheck_mod
 from .buyer_resolver import cascade as cascade_mod
 from .buyer_resolver import tier4_press
 from .buyer_resolver import tier5_holdings
@@ -367,6 +368,83 @@ def init_db_cmd():
     init_db()
     n = managing_agents.seed_database()
     click.echo(f"schema initialized; seeded {n} managing agents")
+
+
+@main.command("health-check")
+@click.option("--skip-network", is_flag=True, default=False,
+              help="Skip live Socrata / Anthropic probes.")
+@click.option("--skip-smoke", is_flag=True, default=False,
+              help="Skip the end-to-end dry-run smoke test (faster).")
+@click.option("--json", "as_json_out", is_flag=True, default=False,
+              help="Emit JSON summary instead of human-readable report.")
+def health_check(skip_network: bool, skip_smoke: bool, as_json_out: bool):
+    """Pre-flight check for scheduled deployment. Exits non-zero on any FAIL.
+
+    Typical use from cron/systemd:
+
+        ExecStartPre=/opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli health-check --skip-smoke
+    """
+    setup_logging()
+    res = healthcheck_mod.run_all(skip_network=skip_network, skip_smoke=skip_smoke)
+    if as_json_out:
+        click.echo(json.dumps(res.summary(), indent=2))
+    else:
+        click.echo(healthcheck_mod.format_report(res))
+    if res.failed:
+        sys.exit(1)
+
+
+@main.command("list-agents")
+def list_agents_cmd():
+    """Print all managing agents in the DB with building counts."""
+    setup_logging()
+    init_db()
+    managing_agents.seed_database()
+    agents = managing_agents.all_agents()
+    for a in agents:
+        bcount = len(a.get("buildings") or [])
+        click.echo(f"{a['name']:<45}  {bcount:>3} bldg(s)  src={a['source']}")
+        for b in a.get("buildings") or []:
+            click.echo(f"    - {b}")
+
+
+@main.command("add-building")
+@click.argument("agent_name")
+@click.argument("building_address")
+def add_building_cmd(agent_name: str, building_address: str):
+    """Attach a building to an existing managing agent (or create a new one)."""
+    setup_logging()
+    init_db()
+    managing_agents.seed_database()
+    added = managing_agents.attach_building(agent_name, building_address)
+    if added:
+        click.echo(f"linked {building_address!r} -> {agent_name}")
+    else:
+        click.echo(f"already linked: {building_address!r} -> {agent_name}")
+
+
+@main.command("bulk-seed-agents")
+@click.argument("json_path", type=click.Path(exists=True, dir_okay=False))
+def bulk_seed_cmd(json_path: str):
+    """Bulk import building->agent mappings from a JSON file.
+
+    Expected format:
+        [
+          {"agent": "FirstService Residential New York", "buildings": ["111 West 57 Street", ...]},
+          ...
+        ]
+    """
+    setup_logging()
+    init_db()
+    managing_agents.seed_database()
+    data = json.loads(Path(json_path).read_text())
+    added = 0
+    for entry in data:
+        agent = entry.get("agent")
+        for b in entry.get("buildings") or []:
+            if managing_agents.attach_building(agent, b):
+                added += 1
+    click.echo(f"added {added} new building links from {json_path}")
 
 
 if __name__ == "__main__":

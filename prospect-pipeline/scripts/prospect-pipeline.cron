@@ -1,5 +1,13 @@
 # Weekly Monday 8am ET run of the prospect pipeline.
-# Install with: sudo cp scripts/prospect-pipeline.cron /etc/cron.d/prospect-pipeline
+# Prefer scripts/install.sh to render this with your actual paths.
+#
+# Install directly with: sudo cp scripts/prospect-pipeline.cron /etc/cron.d/prospect-pipeline
+#
+# Lookback: 8 days (not 7) so a Monday 8am ET fire catches anything recorded
+# after the previous Monday's run — Sunday-recorded deeds often land in
+# Socrata mid-morning Monday.
 TZ=America/New_York
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 MAILTO=ops@alignmentre.com
-0 8 * * MON  deploy  cd /opt/prospect-pipeline && /opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli prospect-week --lookback-days 7 >> /var/log/prospect-pipeline/cron.log 2>&1
+0 8 * * MON  deploy  cd /opt/prospect-pipeline && /opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli health-check --skip-smoke && /opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli prospect-week --lookback-days 8 >> /var/log/prospect-pipeline/cron.log 2>&1

@@ -109,8 +109,12 @@ prospect-pipeline holdings-report <name>
 prospect-pipeline mark-contacted <prospect_id> [--notes ...]
 prospect-pipeline do-not-contact <prospect_id>
 prospect-pipeline push-to-crm <prospect_id> [--target hubspot|salesforce]
-prospect-pipeline seed-agents <building_address>
+prospect-pipeline seed-agents <building_address>           # single scrape
+prospect-pipeline add-building <agent_name> <address>      # manual link
+prospect-pipeline bulk-seed-agents <mapping.json>          # batch import
+prospect-pipeline list-agents                              # inspect current state
 prospect-pipeline backfill --start YYYY-MM-DD --end YYYY-MM-DD
+prospect-pipeline health-check [--skip-network] [--skip-smoke] [--json]
 prospect-pipeline init-db
 ```
 
@@ -129,53 +133,84 @@ Written to `$PIPELINE_OUTPUT_DIR` (default `./out`):
 
 ## Scheduling
 
-### cron (Monday 8am ET)
-
-```cron
-# /etc/cron.d/prospect-pipeline
-TZ=America/New_York
-0 8 * * MON  deploy  cd /opt/prospect-pipeline && /opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli prospect-week --lookback-days 7 >> /var/log/prospect-pipeline/cron.log 2>&1
-```
-
-### systemd timer
-
-`/etc/systemd/system/prospect-pipeline.service`:
-
-```ini
-[Unit]
-Description=NYC Luxury Buyer Prospecting Pipeline — weekly run
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=oneshot
-User=deploy
-WorkingDirectory=/opt/prospect-pipeline
-Environment=PYTHONUNBUFFERED=1
-EnvironmentFile=/opt/prospect-pipeline/.env
-ExecStart=/opt/prospect-pipeline/.venv/bin/python -m prospect_pipeline.cli prospect-week --lookback-days 7
-```
-
-`/etc/systemd/system/prospect-pipeline.timer`:
-
-```ini
-[Unit]
-Description=Weekly prospect pipeline — Monday 8am ET
-
-[Timer]
-OnCalendar=Mon *-*-* 08:00 America/New_York
-Persistent=true
-
-[Install]
-WantedBy=timers.target
-```
-
-Enable with:
+### One-shot installer
 
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now prospect-pipeline.timer
+# On the server, after cloning the repo to $PREFIX and creating .venv:
+sudo ./scripts/install.sh --prefix /opt/prospect-pipeline --user deploy --timer
 ```
+
+`install.sh` renders the systemd service + timer (or a cron entry with `--cron`),
+creates `/var/log/prospect-pipeline/` with the right ownership, runs a
+`health-check --skip-network --skip-smoke` preflight, installs a logrotate
+config, and enables the timer. Idempotent — rerun after code pulls.
+
+Flags:
+- `--prefix /path`  — deployment root (default `/opt/prospect-pipeline`)
+- `--user <name>`   — system user that owns the run (default `deploy`)
+- `--timer|--cron`  — which scheduler (default `--timer`)
+- `--lookback <n>`  — days to look back per run (default `8`)
+
+Why 8 days instead of 7: a Monday 8am ET fire has to cover anything recorded
+after the previous Monday's run. Sunday-recorded deeds often land in Socrata
+mid-Monday-morning, and an 8-day window catches them on the next run with
+harmless overlap (idempotent event_id dedup).
+
+### Manual install (if you'd rather not run a script)
+
+- Copy `scripts/prospect-pipeline.service` + `scripts/prospect-pipeline.timer` to
+  `/etc/systemd/system/`, then `systemctl daemon-reload && systemctl enable --now prospect-pipeline.timer`.
+- Or copy `scripts/prospect-pipeline.cron` to `/etc/cron.d/prospect-pipeline`.
+- Either way, edit the paths to match your `$PREFIX` + `$USER`.
+
+### Health-check
+
+```bash
+python -m prospect_pipeline.cli health-check            # full: imports, db, dirs, yamls, smoke, net probes
+python -m prospect_pipeline.cli health-check --skip-network   # offline
+python -m prospect_pipeline.cli health-check --skip-smoke     # fast (no end-to-end)
+python -m prospect_pipeline.cli health-check --json           # machine-readable
+```
+
+Exits non-zero on any `FAIL`; `WARN` entries pass. Wired as `ExecStartPre` so
+a broken deployment never gets to send a garbage briefing.
+
+## Growing the routing YAMLs
+
+The first live run resolves named individuals directly, but co-op / anonymous-LLC
+buyers fall through to the **managing-agent** route (Tier 9). That route is
+only as good as `managing_agents.yaml` — buildings need to be linked to their
+current management company.
+
+Three ways to grow it:
+
+**1. Manual add (most common):**
+```bash
+prospect-pipeline add-building "FirstService Residential New York" "111 West 57 Street"
+```
+
+**2. Bulk import from JSON (reviewed offline):**
+```bash
+prospect-pipeline bulk-seed-agents seed_data/building_directory.json
+```
+Edit `seed_data/building_directory.json` first. The shipped file has Rudin's
+publicly-documented residential portfolio pre-filled; everything else is empty
+placeholders awaiting verification. Source truth from CityRealty / PropertyShark
+public building pages.
+
+**3. Scrape-grow (live only, rate-limited):**
+```bash
+prospect-pipeline seed-agents "111 West 57 Street"
+```
+Hits CityRealty at 1 req / 2 sec with a polite User-Agent. Cached on first hit.
+
+**Inspect current state:**
+```bash
+prospect-pipeline list-agents
+```
+
+Buildings added via any path survive re-runs of `prospect-week` (the YAML seeder
+union-merges with existing DB entries — YAML edits add, they don't clobber).
 
 ## Storage
 

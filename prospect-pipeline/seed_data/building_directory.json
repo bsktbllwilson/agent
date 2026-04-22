@@ -1,0 +1,56 @@
+[
+  {
+    "_comment": "Rudin-owned residential buildings. Rudin owns AND manages these — see rudin.com/portfolio/residential. Verified via their public portfolio page.",
+    "agent": "Rudin Management",
+    "buildings": [
+      "215 East 68th Street",
+      "345 East 69th Street",
+      "32 Gramercy Park South",
+      "130 East 59th Street",
+      "560 Lexington Avenue",
+      "Gramercy Place",
+      "Dorchester Towers, 155 West 68th Street",
+      "The Beekman, 575 Park Avenue",
+      "The Wellington, 150 East 69th Street",
+      "One Lincoln Square, 150 Columbus Avenue"
+    ]
+  },
+
+  {
+    "_comment": "EDIT ME — the entries below are PLACEHOLDERS. Verify each building's current managing agent via CityRealty or PropertyShark public building pages before running bulk-seed-agents. Management companies change; this file should be revisited quarterly.",
+    "agent": "FirstService Residential New York",
+    "buildings": []
+  },
+  {
+    "agent": "Douglas Elliman Property Management",
+    "buildings": []
+  },
+  {
+    "agent": "Brown Harris Stevens Residential Management",
+    "buildings": []
+  },
+  {
+    "agent": "Halstead Management Company",
+    "buildings": []
+  },
+  {
+    "agent": "Orsid New York",
+    "buildings": []
+  },
+  {
+    "agent": "Maxwell-Kates",
+    "buildings": []
+  },
+  {
+    "agent": "Akam Associates",
+    "buildings": []
+  },
+  {
+    "agent": "Charles H. Greenthal Management",
+    "buildings": []
+  },
+  {
+    "agent": "Midboro Management",
+    "buildings": []
+  }
+]

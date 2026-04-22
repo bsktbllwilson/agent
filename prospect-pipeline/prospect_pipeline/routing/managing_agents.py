@@ -35,11 +35,27 @@ def load_seed_yaml() -> list[dict]:
 
 
 def seed_database() -> int:
-    """Upsert YAML-seeded agents into DB. Safe on every run."""
+    """Upsert YAML-seeded agents into DB. Safe on every run.
+
+    Buildings are UNION-merged with any buildings already in the DB so that
+    records added via `add-building` / `bulk-seed-agents` survive re-seeding.
+    Contact fields (phone/email/website/aka) are treated as canonical from
+    YAML — edit YAML to change them.
+    """
     now = datetime.now(timezone.utc).isoformat()
     agents = load_seed_yaml()
     with tx() as conn:
         for a in agents:
+            existing = conn.execute(
+                "SELECT buildings FROM managing_agents WHERE name=?", (a["name"],)
+            ).fetchone()
+            existing_bldgs = from_json(existing["buildings"]) if existing else []
+            yaml_bldgs = a.get("buildings") or []
+            # Preserve order: existing DB buildings first (user-added), then new YAML entries.
+            merged: list[str] = list(existing_bldgs or [])
+            for b in yaml_bldgs:
+                if b not in merged:
+                    merged.append(b)
             conn.execute(
                 """
                 INSERT INTO managing_agents (name, aka, phone, email, website, buildings, source, updated_at)
@@ -58,7 +74,7 @@ def seed_database() -> int:
                     a.get("phone"),
                     a.get("email"),
                     a.get("website"),
-                    as_json(a.get("buildings", [])),
+                    as_json(merged),
                     now,
                 ),
             )
@@ -75,6 +91,50 @@ def all_agents() -> list[dict]:
         d["buildings"] = from_json(d.get("buildings")) or []
         out.append(d)
     return out
+
+
+def attach_building(agent_name: str, building_address: str) -> bool:
+    """Link a building to an agent. If the agent doesn't exist, create a
+    bare `scraped`-sourced record. Returns True if this is a new link.
+
+    Matching is exact-on-name then fuzzy-on-aka so "FirstService Residential"
+    and "FSR" both resolve to the same row. We don't match on partial tokens
+    (too loose for a mutation)."""
+    now = datetime.now(timezone.utc).isoformat()
+    agent_name = agent_name.strip()
+    building_address = building_address.strip()
+    with tx() as conn:
+        # Exact-name or aka match
+        row = conn.execute(
+            "SELECT id, buildings, aka FROM managing_agents WHERE name = ? COLLATE NOCASE",
+            (agent_name,),
+        ).fetchone()
+        if not row:
+            rows = conn.execute("SELECT id, name, aka, buildings FROM managing_agents").fetchall()
+            for r in rows:
+                akas = [a.lower() for a in (from_json(r["aka"]) or [])]
+                if agent_name.lower() in akas:
+                    row = r
+                    break
+        if row:
+            buildings = from_json(row["buildings"]) or []
+            if building_address in buildings:
+                return False
+            buildings.append(building_address)
+            conn.execute(
+                "UPDATE managing_agents SET buildings=?, updated_at=? WHERE id=?",
+                (as_json(buildings), now, row["id"]),
+            )
+            return True
+        # New agent
+        conn.execute(
+            """
+            INSERT INTO managing_agents (name, aka, buildings, source, updated_at)
+            VALUES (?, '[]', ?, 'manual', ?)
+            """,
+            (agent_name, as_json([building_address]), now),
+        )
+        return True
 
 
 def find_agent_for_building(address: str) -> dict | None:
