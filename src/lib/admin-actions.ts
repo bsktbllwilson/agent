@@ -11,6 +11,10 @@ import {
   listingRejectedEmail,
 } from "@/lib/emails/templates";
 import { createNotification } from "@/lib/notifications";
+import {
+  getPreferencesFor,
+  wantsChannel,
+} from "@/lib/notification-preferences";
 
 async function requireAdminUser() {
   const [user, admin] = await Promise.all([getCurrentUser(), isAdmin()]);
@@ -48,23 +52,28 @@ export async function approveListing(formData: FormData): Promise<void> {
   }
 
   if (current?.seller_id && current.name && current.slug) {
-    const sellerEmail = await lookupUserEmail(current.seller_id);
-    if (sellerEmail) {
-      await sendEmail({
-        to: sellerEmail,
-        ...listingApprovedEmail({
-          listingName: current.name,
-          slug: current.slug,
-        }),
+    const prefs = await getPreferencesFor(current.seller_id);
+    if (wantsChannel(prefs, "listing_approved", "email")) {
+      const sellerEmail = await lookupUserEmail(current.seller_id);
+      if (sellerEmail) {
+        await sendEmail({
+          to: sellerEmail,
+          ...listingApprovedEmail({
+            listingName: current.name,
+            slug: current.slug,
+          }),
+        });
+      }
+    }
+    if (wantsChannel(prefs, "listing_approved", "in_app")) {
+      await createNotification({
+        userId: current.seller_id,
+        type: "listing_approved",
+        title: "Your listing is live",
+        body: `${current.name} has been approved and published.`,
+        href: `/listings/${current.slug}`,
       });
     }
-    await createNotification({
-      userId: current.seller_id,
-      type: "listing_approved",
-      title: "Your listing is live",
-      body: `${current.name} has been approved and published.`,
-      href: `/listings/${current.slug}`,
-    });
   }
 
   revalidatePath("/admin/listings");
@@ -102,24 +111,29 @@ export async function rejectListing(formData: FormData): Promise<void> {
   }
 
   if (current?.seller_id && current.name) {
-    const sellerEmail = await lookupUserEmail(current.seller_id);
-    if (sellerEmail) {
-      await sendEmail({
-        to: sellerEmail,
-        ...listingRejectedEmail({
-          listingName: current.name,
-          editId: id,
-          reason,
-        }),
+    const prefs = await getPreferencesFor(current.seller_id);
+    if (wantsChannel(prefs, "listing_rejected", "email")) {
+      const sellerEmail = await lookupUserEmail(current.seller_id);
+      if (sellerEmail) {
+        await sendEmail({
+          to: sellerEmail,
+          ...listingRejectedEmail({
+            listingName: current.name,
+            editId: id,
+            reason,
+          }),
+        });
+      }
+    }
+    if (wantsChannel(prefs, "listing_rejected", "in_app")) {
+      await createNotification({
+        userId: current.seller_id,
+        type: "listing_rejected",
+        title: "Reviewer sent feedback",
+        body: `${current.name}: ${reason.slice(0, 160)}${reason.length > 160 ? "…" : ""}`,
+        href: `/sell/listings/${id}`,
       });
     }
-    await createNotification({
-      userId: current.seller_id,
-      type: "listing_rejected",
-      title: "Reviewer sent feedback",
-      body: `${current.name}: ${reason.slice(0, 160)}${reason.length > 160 ? "…" : ""}`,
-      href: `/sell/listings/${id}`,
-    });
   }
 
   revalidatePath("/admin/listings");

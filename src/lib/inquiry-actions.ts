@@ -7,6 +7,10 @@ import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { sendEmail, adminEmail } from "@/lib/emails/send";
 import { newInquiryAdminEmail } from "@/lib/emails/templates";
 import { createNotification } from "@/lib/notifications";
+import {
+  getPreferencesFor,
+  wantsChannel,
+} from "@/lib/notification-preferences";
 import type { InquiryStatus } from "@/lib/inquiries";
 
 export async function submitInquiry(formData: FormData): Promise<void> {
@@ -47,13 +51,18 @@ export async function submitInquiry(formData: FormData): Promise<void> {
   const listingName = listing?.name ?? "A listing";
 
   if (listing?.seller_id && listing.seller_id !== user.id) {
-    await createNotification({
-      userId: listing.seller_id,
-      type: "inquiry_received",
-      title: "New buyer interest",
-      body: `Someone is interested in ${listingName}. We'll verify and intro.`,
-      href: "/sell/inquiries",
-    });
+    const prefs = await getPreferencesFor(listing.seller_id);
+    if (wantsChannel(prefs, "inquiry_received", "in_app")) {
+      await createNotification({
+        userId: listing.seller_id,
+        type: "inquiry_received",
+        title: "New buyer interest",
+        body: `Someone is interested in ${listingName}. We'll verify and intro.`,
+        href: "/sell/inquiries",
+      });
+    }
+    // Email channel for seller on new inquiry is not wired yet (requires
+    // service-role email lookup); gate still honored for future.
   }
 
   // Notify admin — seller notification goes through admin intro flow for now
@@ -112,18 +121,21 @@ export async function updateInquiryStatus(formData: FormData): Promise<void> {
       | null
       | undefined;
     const listingName = info?.name ?? "the listing";
-    await createNotification({
-      userId: current.buyer_id,
-      type: "inquiry_status_changed",
-      title: `Inquiry update: ${status}`,
-      body:
-        status === "introduced"
-          ? `We're making the intro on ${listingName}. Watch your email.`
-          : status === "reviewed"
-            ? `We've reviewed your inquiry on ${listingName}.`
-            : `Your inquiry on ${listingName} was marked ${status}.`,
-      href: info?.slug ? `/listings/${info.slug}` : "/account",
-    });
+    const prefs = await getPreferencesFor(current.buyer_id);
+    if (wantsChannel(prefs, "inquiry_status_changed", "in_app")) {
+      await createNotification({
+        userId: current.buyer_id,
+        type: "inquiry_status_changed",
+        title: `Inquiry update: ${status}`,
+        body:
+          status === "introduced"
+            ? `We're making the intro on ${listingName}. Watch your email.`
+            : status === "reviewed"
+              ? `We've reviewed your inquiry on ${listingName}.`
+              : `Your inquiry on ${listingName} was marked ${status}.`,
+        href: info?.slug ? `/listings/${info.slug}` : "/account",
+      });
+    }
   }
 
   revalidatePath("/admin/inquiries");
