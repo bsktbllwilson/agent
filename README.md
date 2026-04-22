@@ -107,6 +107,23 @@ See `.env.local.example`. Vercel → Settings → Environment Variables
 - `ADMIN_EMAIL` — inbox for new-submission / new-inquiry alerts.
 - `NEXT_PUBLIC_SITE_URL` — used in email CTA links.
 
+## In-app notifications
+
+`public.notifications` stores one row per event. Insertion uses the
+service-role client (one user can notify another — e.g. admin approves
+and the seller gets the row), so **`SUPABASE_SERVICE_ROLE_KEY` is
+required** to see anything in the UI. Reads are RLS-scoped to the owner.
+
+Events wired:
+- `approveListing` → `listing_approved` (seller)
+- `rejectListing` → `listing_rejected` (seller, body includes the reason)
+- `submitInquiry` → `inquiry_received` (seller)
+- `updateInquiryStatus` → `inquiry_status_changed` (buyer)
+
+Surfaced on `/account` — top section shows up to 10 recent items with an
+unread badge and inline mark-read / mark-all-read controls. Items link
+back to the relevant page via `href`.
+
 ## Seller analytics
 
 `public.listing_views` logs one row per listing-detail visit. Writes are

@@ -6,6 +6,7 @@ import { getServerSupabase } from "@/lib/supabase/server";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { sendEmail, adminEmail } from "@/lib/emails/send";
 import { newInquiryAdminEmail } from "@/lib/emails/templates";
+import { createNotification } from "@/lib/notifications";
 import type { InquiryStatus } from "@/lib/inquiries";
 
 export async function submitInquiry(formData: FormData): Promise<void> {
@@ -40,10 +41,20 @@ export async function submitInquiry(formData: FormData): Promise<void> {
 
   const { data: listing } = await sb
     .from("listings")
-    .select("name")
+    .select("name, seller_id, slug")
     .eq("id", listingId)
     .maybeSingle();
   const listingName = listing?.name ?? "A listing";
+
+  if (listing?.seller_id && listing.seller_id !== user.id) {
+    await createNotification({
+      userId: listing.seller_id,
+      type: "inquiry_received",
+      title: "New buyer interest",
+      body: `Someone is interested in ${listingName}. We'll verify and intro.`,
+      href: "/sell/inquiries",
+    });
+  }
 
   // Notify admin — seller notification goes through admin intro flow for now
   // (emailing the seller directly requires a service-role lookup of
@@ -78,6 +89,12 @@ export async function updateInquiryStatus(formData: FormData): Promise<void> {
   const sb = await getServerSupabase();
   if (!sb) throw new Error("Supabase not configured.");
 
+  const { data: current } = await sb
+    .from("inquiries")
+    .select("buyer_id, listing:listings(name, slug)")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await sb
     .from("inquiries")
     .update({ status })
@@ -86,6 +103,29 @@ export async function updateInquiryStatus(formData: FormData): Promise<void> {
     console.error("[inquiry] updateInquiryStatus:", error.message);
     throw new Error(error.message);
   }
+
+  if (current?.buyer_id) {
+    const rawListing = (current as { listing?: unknown }).listing;
+    const listingInfo = Array.isArray(rawListing) ? rawListing[0] : rawListing;
+    const info = listingInfo as
+      | { name: string | null; slug: string | null }
+      | null
+      | undefined;
+    const listingName = info?.name ?? "the listing";
+    await createNotification({
+      userId: current.buyer_id,
+      type: "inquiry_status_changed",
+      title: `Inquiry update: ${status}`,
+      body:
+        status === "introduced"
+          ? `We're making the intro on ${listingName}. Watch your email.`
+          : status === "reviewed"
+            ? `We've reviewed your inquiry on ${listingName}.`
+            : `Your inquiry on ${listingName} was marked ${status}.`,
+      href: info?.slug ? `/listings/${info.slug}` : "/account",
+    });
+  }
+
   revalidatePath("/admin/inquiries");
   revalidatePath("/sell/inquiries");
 }

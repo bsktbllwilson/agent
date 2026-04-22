@@ -10,6 +10,7 @@ import {
   listingApprovedEmail,
   listingRejectedEmail,
 } from "@/lib/emails/templates";
+import { createNotification } from "@/lib/notifications";
 
 async function requireAdminUser() {
   const [user, admin] = await Promise.all([getCurrentUser(), isAdmin()]);
@@ -57,6 +58,13 @@ export async function approveListing(formData: FormData): Promise<void> {
         }),
       });
     }
+    await createNotification({
+      userId: current.seller_id,
+      type: "listing_approved",
+      title: "Your listing is live",
+      body: `${current.name} has been approved and published.`,
+      href: `/listings/${current.slug}`,
+    });
   }
 
   revalidatePath("/admin/listings");
@@ -105,6 +113,13 @@ export async function rejectListing(formData: FormData): Promise<void> {
         }),
       });
     }
+    await createNotification({
+      userId: current.seller_id,
+      type: "listing_rejected",
+      title: "Reviewer sent feedback",
+      body: `${current.name}: ${reason.slice(0, 160)}${reason.length > 160 ? "…" : ""}`,
+      href: `/sell/listings/${id}`,
+    });
   }
 
   revalidatePath("/admin/listings");
