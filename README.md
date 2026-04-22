@@ -107,6 +107,30 @@ See `.env.local.example`. Vercel → Settings → Environment Variables
 - `ADMIN_EMAIL` — inbox for new-submission / new-inquiry alerts.
 - `NEXT_PUBLIC_SITE_URL` — used in email CTA links.
 
+## Seller analytics
+
+`public.listing_views` logs one row per listing-detail visit. Writes are
+open to anon + authenticated (RLS restricts inserts to rows whose listing
+is `status = 'published'`); reads are restricted to the owning seller and
+admins. Never read from the client.
+
+Tracking:
+- `src/components/primitives/ViewTracker` (mounted on `/listings/[slug]`)
+  fires `POST /api/track/view` with the listing id on mount, preferring
+  `navigator.sendBeacon` so it survives quick bounces.
+- `src/app/api/track/view/route.ts` resolves the current user (if any) and
+  inserts a row; RLS blocks inserts against unpublished listings.
+
+Aggregates:
+- `src/lib/listing-stats.ts` — `getStatsForListings(ids[])` bulk-fetches
+  views / saves / inquiries counts in parallel for use on list pages;
+  `getStatsForListing(id)` for single-listing detail.
+- Surfaced in the UI on:
+  - `/sell/listings` rows (inline icons on published listings)
+  - `/sell/listings/[id]` stats card at the top of the edit page (when
+    published)
+  - `/admin/listings?status=published` row footer
+
 ## Image uploads
 
 Hero and owner photos are uploaded directly to **Supabase Storage** from the

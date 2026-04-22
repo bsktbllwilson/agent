@@ -1,8 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Plus } from "lucide-react";
+import { Eye, Heart, Mail } from "lucide-react";
 import { requireSignedIn } from "@/lib/auth";
 import { getOwnListings } from "@/lib/seller-listings";
+import { getStatsForListings } from "@/lib/listing-stats";
 import { formatPrice, formatStatus } from "@/lib/format";
 import { Wordmark } from "@/components/Wordmark";
 
@@ -12,6 +14,7 @@ export const dynamic = "force-dynamic";
 export default async function SellerListingsPage() {
   await requireSignedIn();
   const listings = await getOwnListings();
+  const stats = await getStatsForListings(listings.map((l) => l.id));
 
   return (
     <main className="min-h-[100dvh] pb-24">
@@ -74,11 +77,12 @@ export default async function SellerListingsPage() {
             <div className="mt-10 grid gap-4">
               {listings.map((l) => {
                 const s = formatStatus(l.status);
+                const st = stats[l.id] ?? { views: 0, saves: 0, inquiries: 0 };
                 return (
                   <Link
                     key={l.id}
                     href={`/sell/listings/${l.id}`}
-                    className="flex items-center justify-between gap-6 rounded-[1.25rem] border border-ink/10 bg-white px-6 py-5 transition-colors hover:border-ink"
+                    className="flex flex-col gap-4 rounded-[1.25rem] border border-ink/10 bg-white px-6 py-5 transition-colors hover:border-ink lg:flex-row lg:items-center lg:justify-between"
                   >
                     <div className="flex items-center gap-5 min-w-0">
                       <StatusDot tone={s.tone} />
@@ -93,16 +97,25 @@ export default async function SellerListingsPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="hidden text-right sm:block">
-                      <div className="font-medium text-ink">
-                        {formatPrice(l.price)}
-                      </div>
-                      <div className="mt-0.5 text-xs text-ink/50">
-                        Updated{" "}
-                        {new Date(l.updated_at).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
+                    <div className="flex items-center gap-6 lg:gap-8">
+                      {s.tone === "published" && (
+                        <div className="flex gap-4 text-sm text-ink/70">
+                          <Stat icon={<Eye className="size-4" />} value={st.views} />
+                          <Stat icon={<Heart className="size-4" />} value={st.saves} />
+                          <Stat icon={<Mail className="size-4" />} value={st.inquiries} />
+                        </div>
+                      )}
+                      <div className="hidden text-right sm:block">
+                        <div className="font-medium text-ink">
+                          {formatPrice(l.price)}
+                        </div>
+                        <div className="mt-0.5 text-xs text-ink/50">
+                          Updated{" "}
+                          {new Date(l.updated_at).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </div>
                       </div>
                     </div>
                   </Link>
@@ -113,6 +126,18 @@ export default async function SellerListingsPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+function Stat({ icon, value }: { icon: React.ReactNode; value: number }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 tabular-nums"
+      title={`${value}`}
+    >
+      {icon}
+      {value.toLocaleString("en-US")}
+    </span>
   );
 }
 

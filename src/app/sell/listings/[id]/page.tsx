@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Eye, Heart, Mail } from "lucide-react";
 import { requireSignedIn } from "@/lib/auth";
 import { getOwnListingById } from "@/lib/seller-listings";
+import { getStatsForListing } from "@/lib/listing-stats";
 import {
   updateListing,
   submitListingForReview,
@@ -29,6 +30,8 @@ export default async function EditListingPage({ params }: { params: Params }) {
   const isEditable =
     s.tone === "draft" || s.tone === "pending" || s.tone === "rejected";
   const canSubmit = s.tone === "draft" || s.tone === "rejected";
+  const stats =
+    s.tone === "published" ? await getStatsForListing(listing.id) : null;
 
   async function submit() {
     "use server";
@@ -64,6 +67,26 @@ export default async function EditListingPage({ params }: { params: Params }) {
             listing={listing}
             submitAction={submit}
           />
+
+          {stats && (
+            <div className="mt-4 grid grid-cols-3 gap-3 rounded-[1.5rem] border border-ink/10 bg-white p-6 sm:gap-6">
+              <StatBlock
+                icon={<Eye className="size-4 text-ink/60" />}
+                label="Views"
+                value={stats.views}
+              />
+              <StatBlock
+                icon={<Heart className="size-4 text-ink/60" />}
+                label="Saves"
+                value={stats.saves}
+              />
+              <StatBlock
+                icon={<Mail className="size-4 text-ink/60" />}
+                label="Inquiries"
+                value={stats.inquiries}
+              />
+            </div>
+          )}
 
           {listing.rejection_reason && s.tone === "rejected" && (
             <div className="mt-4 rounded-[1.25rem] border border-orange/40 bg-orange/10 p-5">
@@ -386,6 +409,28 @@ function SubmitForReviewButton({
         {label}
       </button>
     </form>
+  );
+}
+
+function StatBlock({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.12em] text-ink/60">
+        {icon}
+        {label}
+      </div>
+      <div className="font-display text-3xl text-ink tabular-nums">
+        {value.toLocaleString("en-US")}
+      </div>
+    </div>
   );
 }
 

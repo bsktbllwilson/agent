@@ -16,6 +16,7 @@ import {
 import { Wordmark } from "@/components/Wordmark";
 import { SaveListingButton } from "@/components/primitives/SaveListingButton";
 import { ContactSellerForm } from "@/components/primitives/ContactSellerForm";
+import { ViewTracker } from "@/components/primitives/ViewTracker";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,7 @@ export default async function ListingDetailPage({
 
   return (
     <main className="min-h-[100dvh] pb-24">
+      <ViewTracker listingId={listing.id} />
       <div className="container-px pt-10">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between">
           <Link href="/" aria-label="Pass The Plate home">

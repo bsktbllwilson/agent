@@ -1,12 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft, ExternalLink, Star, StarOff } from "lucide-react";
+import { ArrowLeft, Eye, ExternalLink, Heart, Mail, Star, StarOff } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 import {
   getListingsByStatus,
   getListingStatusCounts,
   type AdminStatus,
 } from "@/lib/admin-listings";
+import { getStatsForListings, type ListingStats } from "@/lib/listing-stats";
 import {
   approveListing,
   rejectListing,
@@ -47,6 +48,10 @@ export default async function AdminListingsPage({
     getListingsByStatus(status),
     getListingStatusCounts(),
   ]);
+  const stats =
+    status === "published"
+      ? await getStatsForListings(rows.map((r) => r.id))
+      : {};
 
   return (
     <main className="min-h-[100dvh] pb-24">
@@ -112,7 +117,12 @@ export default async function AdminListingsPage({
           ) : (
             <div className="mt-8 flex flex-col gap-4">
               {rows.map((l) => (
-                <ListingRow key={l.id} listing={l} status={status} />
+                <ListingRow
+                  key={l.id}
+                  listing={l}
+                  status={status}
+                  stats={stats[l.id]}
+                />
               ))}
             </div>
           )}
@@ -141,9 +151,11 @@ function EmptyState({ status }: { status: AdminStatus }) {
 function ListingRow({
   listing,
   status,
+  stats,
 }: {
   listing: Listing;
   status: AdminStatus;
+  stats?: ListingStats;
 }) {
   const s = formatStatus(listing.status);
 
@@ -199,6 +211,23 @@ function ListingRow({
               <span className="font-medium">Feedback:</span>{" "}
               {listing.rejection_reason}
             </p>
+          )}
+
+          {status === "published" && stats && (
+            <div className="mt-3 flex gap-4 text-sm text-ink/70">
+              <span className="inline-flex items-center gap-1.5 tabular-nums">
+                <Eye className="size-4" />
+                {stats.views.toLocaleString("en-US")}
+              </span>
+              <span className="inline-flex items-center gap-1.5 tabular-nums">
+                <Heart className="size-4" />
+                {stats.saves.toLocaleString("en-US")}
+              </span>
+              <span className="inline-flex items-center gap-1.5 tabular-nums">
+                <Mail className="size-4" />
+                {stats.inquiries.toLocaleString("en-US")}
+              </span>
+            </div>
           )}
         </div>
       </div>
