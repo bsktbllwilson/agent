@@ -115,6 +115,33 @@ export function newInquiryAdminEmail(args: {
   };
 }
 
+export function digestEmail(args: {
+  items: { title: string; body: string | null; href: string | null }[];
+  unreadCount: number;
+}) {
+  const itemsHtml = args.items
+    .map(
+      (it) => `
+        <tr>
+          <td style="padding:12px 0;border-top:1px solid rgba(0,0,0,0.08);">
+            <div style="font-family:Georgia,serif;font-size:18px;line-height:1.25;">${escape(it.title)}</div>
+            ${it.body ? `<div style="margin-top:4px;font-size:14px;color:rgba(0,0,0,0.7);">${escape(it.body)}</div>` : ""}
+            ${it.href ? `<div style="margin-top:6px;"><a href="${siteUrl()}${it.href}" style="font-size:13px;color:rgb(230,78,33);text-decoration:none;">Open →</a></div>` : ""}
+          </td>
+        </tr>`,
+    )
+    .join("");
+
+  return {
+    subject: `${args.unreadCount} update${args.unreadCount === 1 ? "" : "s"} waiting on Pass The Plate`,
+    html: shell(
+      `You have ${args.unreadCount} new update${args.unreadCount === 1 ? "" : "s"}`,
+      `<table width="100%" cellpadding="0" cellspacing="0">${itemsHtml}</table>`,
+      { label: "Open your account", href: `${siteUrl()}/account` },
+    ),
+  };
+}
+
 export function newInquirySellerEmail(args: {
   listingName: string;
   message: string;

@@ -12,7 +12,9 @@ export type EventType = (typeof EVENT_TYPES)[number];
 
 export type Channel = "in_app" | "email";
 
-export type Preferences = Record<`${EventType}_${Channel}`, boolean>;
+export type Preferences = Record<`${EventType}_${Channel}`, boolean> & {
+  digest_email: boolean;
+};
 
 export const DEFAULT_PREFS: Preferences = {
   listing_approved_in_app: true,
@@ -23,6 +25,7 @@ export const DEFAULT_PREFS: Preferences = {
   inquiry_received_email: true,
   inquiry_status_changed_in_app: true,
   inquiry_status_changed_email: false,
+  digest_email: true,
 };
 
 export const EVENT_LABELS: Record<EventType, { title: string; body: string }> = {

@@ -83,6 +83,25 @@ export default async function NotificationSettingsPage() {
               </ul>
             </div>
 
+            <div className="rounded-[1.5rem] border border-ink/10 bg-white p-6">
+              <div className="flex items-start justify-between gap-6">
+                <div>
+                  <div className="font-display text-lg text-ink">
+                    Daily digest
+                  </div>
+                  <div className="mt-1 text-sm text-ink/60">
+                    One email per day summarizing anything you haven&apos;t
+                    read yet. Skipped on days without activity.
+                  </div>
+                </div>
+                <Toggle
+                  name="digest_email"
+                  defaultChecked={prefs.digest_email}
+                  label="Daily digest email"
+                />
+              </div>
+            </div>
+
             <div className="flex items-center justify-end gap-3">
               <button
                 type="submit"
