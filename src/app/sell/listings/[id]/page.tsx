@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 import { ArrowLeft, ExternalLink, Eye, Heart, Mail } from "lucide-react";
 import { requireSignedIn } from "@/lib/auth";
 import { getOwnListingById } from "@/lib/seller-listings";
-import { getStatsForListing } from "@/lib/listing-stats";
+import { getStatsForListing, getWeeklyViews } from "@/lib/listing-stats";
+import { Sparkline } from "@/components/primitives/Sparkline";
 import {
   updateListing,
   submitListingForReview,
@@ -30,8 +31,13 @@ export default async function EditListingPage({ params }: { params: Params }) {
   const isEditable =
     s.tone === "draft" || s.tone === "pending" || s.tone === "rejected";
   const canSubmit = s.tone === "draft" || s.tone === "rejected";
-  const stats =
-    s.tone === "published" ? await getStatsForListing(listing.id) : null;
+  const [stats, weeklyViews] =
+    s.tone === "published"
+      ? await Promise.all([
+          getStatsForListing(listing.id),
+          getWeeklyViews(listing.id),
+        ])
+      : [null, []];
 
   async function submit() {
     "use server";
@@ -69,22 +75,30 @@ export default async function EditListingPage({ params }: { params: Params }) {
           />
 
           {stats && (
-            <div className="mt-4 grid grid-cols-3 gap-3 rounded-[1.5rem] border border-ink/10 bg-white p-6 sm:gap-6">
-              <StatBlock
-                icon={<Eye className="size-4 text-ink/60" />}
-                label="Views"
-                value={stats.views}
-              />
-              <StatBlock
-                icon={<Heart className="size-4 text-ink/60" />}
-                label="Saves"
-                value={stats.saves}
-              />
-              <StatBlock
-                icon={<Mail className="size-4 text-ink/60" />}
-                label="Inquiries"
-                value={stats.inquiries}
-              />
+            <div className="mt-4 flex flex-col gap-6 rounded-[1.5rem] border border-ink/10 bg-white p-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="grid flex-1 grid-cols-3 gap-3 sm:gap-6">
+                <StatBlock
+                  icon={<Eye className="size-4 text-ink/60" />}
+                  label="Views"
+                  value={stats.views}
+                />
+                <StatBlock
+                  icon={<Heart className="size-4 text-ink/60" />}
+                  label="Saves"
+                  value={stats.saves}
+                />
+                <StatBlock
+                  icon={<Mail className="size-4 text-ink/60" />}
+                  label="Inquiries"
+                  value={stats.inquiries}
+                />
+              </div>
+              <div className="lg:w-[260px]">
+                <div className="text-xs font-medium uppercase tracking-[0.12em] text-ink/60">
+                  Last 8 weeks
+                </div>
+                <Sparkline data={weeklyViews} className="mt-2" />
+              </div>
             </div>
           )}
 
