@@ -61,10 +61,8 @@ export default async function AdminPage() {
             />
             <AdminCard
               title="Inquiries"
-              href="#"
-              body="Buyer / seller messages"
-              badge="Soon"
-              badgeTone="neutral"
+              href="/admin/inquiries?status=new"
+              body="Verify buyers, intro to sellers"
             />
             <AdminCard
               title="Users"

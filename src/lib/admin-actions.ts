@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { lookupUserEmail } from "@/lib/supabase/admin";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
+import { sendEmail } from "@/lib/emails/send";
+import {
+  listingApprovedEmail,
+  listingRejectedEmail,
+} from "@/lib/emails/templates";
 
 async function requireAdminUser() {
   const [user, admin] = await Promise.all([getCurrentUser(), isAdmin()]);
@@ -19,6 +25,12 @@ export async function approveListing(formData: FormData): Promise<void> {
   if (!sb) throw new Error("Supabase not configured.");
 
   const now = new Date().toISOString();
+  const { data: current } = await sb
+    .from("listings")
+    .select("name, slug, seller_id")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await sb
     .from("listings")
     .update({
@@ -33,6 +45,20 @@ export async function approveListing(formData: FormData): Promise<void> {
     console.error("[admin] approveListing:", error.message);
     throw new Error(error.message);
   }
+
+  if (current?.seller_id && current.name && current.slug) {
+    const sellerEmail = await lookupUserEmail(current.seller_id);
+    if (sellerEmail) {
+      await sendEmail({
+        to: sellerEmail,
+        ...listingApprovedEmail({
+          listingName: current.name,
+          slug: current.slug,
+        }),
+      });
+    }
+  }
+
   revalidatePath("/admin/listings");
   revalidatePath("/listings");
   revalidatePath("/");
@@ -47,6 +73,12 @@ export async function rejectListing(formData: FormData): Promise<void> {
   const sb = await getServerSupabase();
   if (!sb) throw new Error("Supabase not configured.");
 
+  const { data: current } = await sb
+    .from("listings")
+    .select("name, seller_id")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await sb
     .from("listings")
     .update({
@@ -60,6 +92,21 @@ export async function rejectListing(formData: FormData): Promise<void> {
     console.error("[admin] rejectListing:", error.message);
     throw new Error(error.message);
   }
+
+  if (current?.seller_id && current.name) {
+    const sellerEmail = await lookupUserEmail(current.seller_id);
+    if (sellerEmail) {
+      await sendEmail({
+        to: sellerEmail,
+        ...listingRejectedEmail({
+          listingName: current.name,
+          editId: id,
+          reason,
+        }),
+      });
+    }
+  }
+
   revalidatePath("/admin/listings");
   revalidatePath("/listings");
 }

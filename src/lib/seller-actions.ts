@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import { slugify } from "@/lib/format";
+import { sendEmail, adminEmail } from "@/lib/emails/send";
+import { listingSubmittedEmail } from "@/lib/emails/templates";
 
 function toIntOrNull(raw: FormDataEntryValue | null): number | null {
   if (raw == null || raw === "") return null;
@@ -171,6 +173,15 @@ export async function submitListingForReview(id: string): Promise<void> {
     console.error("[seller] submitListingForReview:", error.message);
     throw new Error(error.message);
   }
+
+  const admin = adminEmail();
+  if (admin && listing.name) {
+    await sendEmail({
+      to: admin,
+      ...listingSubmittedEmail({ listingName: listing.name, listingId: id }),
+    });
+  }
+
   revalidatePath(`/sell/listings/${id}`);
   revalidatePath("/sell/listings");
 }

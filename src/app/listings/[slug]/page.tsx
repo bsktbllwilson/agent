@@ -15,6 +15,7 @@ import {
 } from "@/lib/format";
 import { Wordmark } from "@/components/Wordmark";
 import { SaveListingButton } from "@/components/primitives/SaveListingButton";
+import { ContactSellerForm } from "@/components/primitives/ContactSellerForm";
 
 export const dynamic = "force-dynamic";
 
@@ -199,15 +200,27 @@ export default async function ListingDetailPage({
                 ))}
               </dl>
 
-              <Link
-                href={`/signin?next=${encodeURIComponent(`/listings/${listing.slug ?? ""}`)}`}
-                className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-orange px-6 py-3 text-base font-medium text-cream transition-colors hover:bg-[rgb(210,68,28)]"
-              >
-                Request intro
-              </Link>
-              <p className="mt-3 text-center text-xs text-ink/50">
-                Sign in to unlock owner contact and full financials.
-              </p>
+              {user ? (
+                <div className="mt-6">
+                  <ContactSellerForm
+                    listingId={listing.id}
+                    slug={listing.slug ?? ""}
+                    listingName={listing.name}
+                  />
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href={`/signin?next=${encodeURIComponent(`/listings/${listing.slug ?? ""}`)}`}
+                    className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-orange px-6 py-3 text-base font-medium text-cream transition-colors hover:bg-[rgb(210,68,28)]"
+                  >
+                    Sign in to request intro
+                  </Link>
+                  <p className="mt-3 text-center text-xs text-ink/50">
+                    We verify every buyer before connecting them with sellers.
+                  </p>
+                </>
+              )}
             </div>
 
             {listing.owner_name && (

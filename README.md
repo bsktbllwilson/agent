@@ -73,6 +73,39 @@ Fonts are loaded from Adobe Typekit kit `cub1hgl` via a `<link>` in
 | `/auth/callback` | PKCE code exchange. |
 | `/admin` | `requireAdmin` gate + quick-link cards with live pending count. |
 | `/admin/listings` | Tabbed approval queue: Pending / Approved / Rejected / Drafts. Per-row actions: **Approve & publish**, **Reject with feedback**, **Feature / Unfeature**, **Un-publish**, **Reopen for review**, **Preview**. |
+| `/admin/inquiries` | Inquiry pipeline (new → reviewed → introduced → closed → spam). Admins change status per row. |
+| `/sell/inquiries` | Seller's inquiries across their listings (identity withheld until verified). |
+
+## Transactional email (Resend)
+
+Emails fire from server actions — admin submissions go out regardless, seller
+emails need `SUPABASE_SERVICE_ROLE_KEY` set so we can look up the seller's
+email from `auth.users` without exposing it to the client.
+
+| Trigger | Template | To |
+|---|---|---|
+| Seller hits "Submit for review" | `listingSubmittedEmail` | `ADMIN_EMAIL` |
+| Admin approves | `listingApprovedEmail` | seller (needs service-role key) |
+| Admin rejects with reason | `listingRejectedEmail` | seller (needs service-role key) |
+| Buyer submits an inquiry | `newInquiryAdminEmail` | `ADMIN_EMAIL` (with `Reply-To` = buyer) |
+
+Templates live in `src/lib/emails/templates.ts` (plain HTML, no extra deps).
+The top-level helper `sendEmail` in `src/lib/emails/send.ts` is a no-op and
+logs a warning when `RESEND_API_KEY` is missing, so dev still works without
+email credentials.
+
+## Env vars
+
+See `.env.local.example`. Vercel → Settings → Environment Variables
+(Production + Preview):
+
+- `NEXT_PUBLIC_SUPABASE_URL` — Supabase Project URL.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — anon / public key.
+- `SUPABASE_SERVICE_ROLE_KEY` — enables emailing sellers on approve / reject.
+- `RESEND_API_KEY` — Resend API key.
+- `EMAIL_FROM` — e.g. `Pass The Plate <deals@passtheplate.store>` (verified sender).
+- `ADMIN_EMAIL` — inbox for new-submission / new-inquiry alerts.
+- `NEXT_PUBLIC_SITE_URL` — used in email CTA links.
 
 ## Seller flow & RLS
 

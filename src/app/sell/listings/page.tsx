@@ -22,10 +22,10 @@ export default async function SellerListingsPage() {
           </Link>
           <div className="flex items-center gap-2">
             <Link
-              href="/sell"
+              href="/sell/inquiries"
               className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
             >
-              Overview
+              Inquiries
             </Link>
             <Link
               href="/account"
