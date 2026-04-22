@@ -1,10 +1,15 @@
-# Pass The Plate — Landing Page
+# Pass The Plate
 
-The marketing homepage for **Pass The Plate**, the first marketplace for the
-$240B+ Asian F&B business transition (buying and selling Asian-owned
-restaurants, grocery, manufacturing, and more).
+Marketplace for the $240B+ Asian F&B business transition (buying and selling
+Asian-owned restaurants, grocery, manufacturing, and more).
 
-This is a single-page build — production-ready, deployable to Vercel.
+Includes:
+- Marketing homepage (dynamic — featured listings pulled from Supabase)
+- `/listings` browse with filters (cuisine / type / neighborhood / price)
+- `/listings/[slug]` detail page with deal mechanics and owner story
+- Magic-link auth + admin gating (from earlier phases)
+
+Deployable to Vercel.
 
 ## Stack
 
@@ -51,6 +56,176 @@ Defined in `src/app/globals.css` under `@theme`:
 
 Fonts are loaded from Adobe Typekit kit `cub1hgl` via a `<link>` in
 `src/app/layout.tsx`.
+
+## Routes
+
+| Route | Notes |
+|---|---|
+| `/` | Marketing home. Static with 60s revalidate. Trending Hotspots auto-pulls top 4 featured published listings from Supabase (falls back to seed data if env vars missing). |
+| `/listings` | SSR listings grid. Filters via URL params: `?cuisine=&subtype=&neighborhood=&min=&max=&q=`. Reads facet options from the DB. |
+| `/listings/[slug]` | SSR detail page with At-a-Glance rail, deal mechanics, owner story. "Request intro" CTA routes unsigned users to `/signin?next=…`. |
+| `/sell` | Public seller landing. CTA flips between "Sign in" and "Start a listing" based on auth. |
+| `/sell/new` | `requireSignedIn` — minimal create form (name, cuisine, type, neighborhood, price, hero URL) → creates draft, redirects to edit. |
+| `/sell/listings` | `requireSignedIn` — your listings dashboard (status + quick stats). |
+| `/sell/listings/[id]` | `requireSignedIn` — full edit form with status banner. Can **Save** while draft/pending. **Submit for review** flips draft → pending (enforced in the server action + RLS). **Delete draft** hard-deletes own drafts only. Fields lock when status is `published` / `rejected`. |
+| `/account` | `requireSignedIn` — profile + saved listings grid + sign-out. |
+| `/signin` | Magic-link (Supabase OTP). Respects `?next=` for post-login redirect (validated same-origin). |
+| `/auth/callback` | PKCE code exchange. |
+| `/admin` | `requireAdmin` gate + quick-link cards with live pending count. |
+| `/admin/listings` | Tabbed approval queue: Pending / Approved / Rejected / Drafts. Per-row actions: **Approve & publish**, **Reject with feedback**, **Feature / Unfeature**, **Un-publish**, **Reopen for review**, **Preview**. |
+| `/admin/inquiries` | Inquiry pipeline (new → reviewed → introduced → closed → spam). Admins change status per row. |
+| `/sell/inquiries` | Seller's inquiries across their listings (identity withheld until verified). |
+
+## Transactional email (Resend)
+
+Emails fire from server actions — admin submissions go out regardless, seller
+emails need `SUPABASE_SERVICE_ROLE_KEY` set so we can look up the seller's
+email from `auth.users` without exposing it to the client.
+
+| Trigger | Template | To |
+|---|---|---|
+| Seller hits "Submit for review" | `listingSubmittedEmail` | `ADMIN_EMAIL` |
+| Admin approves | `listingApprovedEmail` | seller (needs service-role key) |
+| Admin rejects with reason | `listingRejectedEmail` | seller (needs service-role key) |
+| Buyer submits an inquiry | `newInquiryAdminEmail` | `ADMIN_EMAIL` (with `Reply-To` = buyer) |
+
+Templates live in `src/lib/emails/templates.ts` (plain HTML, no extra deps).
+The top-level helper `sendEmail` in `src/lib/emails/send.ts` is a no-op and
+logs a warning when `RESEND_API_KEY` is missing, so dev still works without
+email credentials.
+
+## Env vars
+
+See `.env.local.example`. Vercel → Settings → Environment Variables
+(Production + Preview):
+
+- `NEXT_PUBLIC_SUPABASE_URL` — Supabase Project URL.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — anon / public key.
+- `SUPABASE_SERVICE_ROLE_KEY` — enables emailing sellers on approve / reject.
+- `RESEND_API_KEY` — Resend API key.
+- `EMAIL_FROM` — e.g. `Pass The Plate <deals@passtheplate.store>` (verified sender).
+- `ADMIN_EMAIL` — inbox for new-submission / new-inquiry alerts.
+- `NEXT_PUBLIC_SITE_URL` — used in email CTA links.
+
+## Realtime notifications
+
+`RealtimeNotifier` is mounted once in the root layout and subscribes to
+`INSERT`s on `public.notifications` filtered by `user_id = auth.uid()`.
+When a new row lands, a sonner toast pops with the title / body, plus an
+"Open" action that routes to `notification.href` when set. Subscription
+is reattached on `SIGNED_IN` and torn down on `SIGNED_OUT`. RLS runs on
+the stream so users only receive their own rows.
+
+Requires `0009_notifications_realtime.sql`, which adds the table to the
+default `supabase_realtime` publication. No extra env vars.
+
+## In-app notifications
+
+`public.notifications` stores one row per event. Insertion uses the
+service-role client (one user can notify another — e.g. admin approves
+and the seller gets the row), so **`SUPABASE_SERVICE_ROLE_KEY` is
+required** to see anything in the UI. Reads are RLS-scoped to the owner.
+
+Events wired:
+- `approveListing` → `listing_approved` (seller)
+- `rejectListing` → `listing_rejected` (seller, body includes the reason)
+- `submitInquiry` → `inquiry_received` (seller)
+- `updateInquiryStatus` → `inquiry_status_changed` (buyer)
+
+Surfaced on `/account` — top section shows up to 10 recent items with an
+unread badge and inline mark-read / mark-all-read controls. Items link
+back to the relevant page via `href`.
+
+## Seller analytics
+
+`public.listing_views` logs one row per listing-detail visit. Writes are
+open to anon + authenticated (RLS restricts inserts to rows whose listing
+is `status = 'published'`); reads are restricted to the owning seller and
+admins. Never read from the client.
+
+Tracking:
+- `src/components/primitives/ViewTracker` (mounted on `/listings/[slug]`)
+  fires `POST /api/track/view` with the listing id on mount, preferring
+  `navigator.sendBeacon` so it survives quick bounces.
+- `src/app/api/track/view/route.ts` resolves the current user (if any) and
+  inserts a row; RLS blocks inserts against unpublished listings.
+
+Aggregates:
+- `src/lib/listing-stats.ts` — `getStatsForListings(ids[])` bulk-fetches
+  views / saves / inquiries counts in parallel for use on list pages;
+  `getStatsForListing(id)` for single-listing detail.
+- Surfaced in the UI on:
+  - `/sell/listings` rows (inline icons on published listings)
+  - `/sell/listings/[id]` stats card at the top of the edit page (when
+    published)
+  - `/admin/listings?status=published` row footer
+
+## Image uploads
+
+Hero and owner photos are uploaded directly to **Supabase Storage** from the
+browser. Migration `0006_listings_bucket.sql` creates the `listings` bucket
+(public read, 10 MB limit, jpg/png/webp/gif) and RLS policies that only let
+authenticated users write to their own folder:
+
+```
+listings/
+  <user_id>/
+    <listing_id>/
+      <timestamp>-<nonce>.jpg
+```
+
+The `ImageUpload` client component (used in `/sell/new` and
+`/sell/listings/[id]`) uploads, fetches the public URL, and writes it into a
+hidden form field — so the existing server actions keep working unchanged.
+
+Remote image hosts are allowlisted in `next.config.mjs` (`*.supabase.co`)
+so `next/image` renders uploaded images without transformation errors.
+
+## Seller flow & RLS
+
+Migration `supabase/migrations/0003_listing_rls.sql` enables RLS on
+`public.listings` with this policy matrix (assumes `public.is_admin()`
+from `0001`):
+
+| Role | SELECT | INSERT | UPDATE | DELETE |
+|---|---|---|---|---|
+| anon | `status = 'published'` | — | — | — |
+| signed-in user | `status = 'published'` OR own rows | only as `seller_id = auth.uid()` **and** `status = 'draft'` | own rows while `status in ('draft','pending')` (can't flip to `published`) | own rows while `status = 'draft'` |
+| admin | all | — | any | — |
+
+Server actions live in `src/lib/seller-actions.ts`:
+- `createDraftListing(form)` — auto-slugs from name with collision suffix.
+- `updateListing(form)` — partial update; re-slug if name changed.
+- `submitListingForReview(id)` — enforces required-fields check in app + RLS
+  (status moves draft → pending).
+- `deleteDraftListing(id)` — hard delete, drafts only.
+
+Because the server actions use the **anon** Supabase client with RLS, a
+compromised client can't bypass the lifecycle even if it mimics the
+endpoints.
+
+## Saved listings
+
+Per-user favorites with heart buttons on every listing card (index + detail).
+
+- Table: `public.saved_listings (user_id, listing_id, created_at)` — composite PK, RLS-locked to the owner.
+- Migration: `supabase/migrations/0002_saved_listings.sql`.
+- Server actions: `saveListing` / `unsaveListing` / `signOut` in `src/lib/actions.ts` — use Next.js `revalidatePath`.
+- UI: `SaveListingButton` uses `useOptimistic` + `useTransition` so taps feel instant.
+- Hearts hidden for signed-out users (prevents silent failures); "Request intro" CTA still prompts sign-in via `next=`.
+
+## Data layer
+
+`src/lib/listings.ts` exposes:
+
+- `getPublishedListings(filters, opts)` — filtered list, ordered featured-first.
+- `getListingBySlug(slug)` — single listing by slug, only if `status = 'published'`.
+- `getFeaturedListings(limit)` — landing "Trending Hotspots".
+- `getFilterFacets()` — unique cuisine / subtype / neighborhood values for filter dropdowns.
+
+All reads are filtered by `status = 'published'` server-side — so the anon
+key + RLS can't leak drafts. Price / area / year formatting helpers live in
+`src/lib/format.ts`.
 
 ## Page structure
 

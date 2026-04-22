@@ -9,7 +9,10 @@ import { PartnerLogos } from "@/components/sections/PartnerLogos";
 import { Subscribe } from "@/components/sections/Subscribe";
 import { SiteFooter } from "@/components/sections/SiteFooter";
 
-export default function HomePage() {
+// Revalidate homepage every 60s so featured listings stay fresh.
+export const revalidate = 60;
+
+export default async function HomePage() {
   const content = getHomepage();
   return (
     <main className="bg-cream">
