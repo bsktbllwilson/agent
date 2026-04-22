@@ -11,7 +11,6 @@ heuristic classification so the pipeline produces a useful dossier end-to-end.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 
 from ..config import CONFIG, project_root
@@ -20,10 +19,15 @@ from ..utils.logging import get_logger
 log = get_logger("classifier")
 
 PROMPT_PATH = project_root() / "prompts" / "buyer_classification_v1.txt"
+ANGLE_PROMPT_PATH = project_root() / "prompts" / "outreach_angle_v1.txt"
 
 
 def _load_prompt() -> str:
     return PROMPT_PATH.read_text()
+
+
+def _load_angle_prompt() -> str:
+    return ANGLE_PROMPT_PATH.read_text()
 
 
 def _heuristic_classify(ctx: dict[str, Any]) -> dict[str, Any]:
@@ -138,3 +142,59 @@ def classify(ctx: dict[str, Any], *, dry_run: bool) -> dict[str, Any]:
     except Exception as e:
         log.warning("Claude classification failed: %s — using heuristic", e)
         return _heuristic_classify(ctx)
+
+
+def refine_outreach_angle(ctx: dict[str, Any], *, dry_run: bool) -> str | None:
+    """Second-pass angle refinement for hot prospects.
+
+    The classification prompt already produces an `outreach_angle`, but it has
+    to do many things at once. For buyers we're about to actually call, it's
+    worth a dedicated call with the v1 angle prompt (tighter rules: no
+    em-dashes, no "exclusive/bespoke", no wealth references, ≤ 1 sentence).
+
+    Returns the refined angle on success, or None if we should fall back to
+    whatever `ctx["outreach_angle"]` already contains. Dry-run / unconfigured
+    API key returns None (keeps dry-run deterministic)."""
+    if dry_run or not CONFIG.anthropic_api_key:
+        return None
+    try:
+        import anthropic
+    except ImportError:
+        return None
+    client = anthropic.Anthropic(api_key=CONFIG.anthropic_api_key)
+    try:
+        resp = client.messages.create(
+            model=CONFIG.buyer_classification_model,
+            max_tokens=160,
+            temperature=0.3,
+            system=_load_angle_prompt(),
+            messages=[{
+                "role": "user",
+                "content": json.dumps({
+                    "buyer_type": ctx.get("buyer_type"),
+                    "primary_firm": ctx.get("primary_firm"),
+                    "title": ctx.get("title"),
+                    "trigger_address": ctx.get("trigger_address"),
+                    "trigger_price": ctx.get("trigger_price"),
+                    "trigger_asset_type": ctx.get("trigger_asset_type"),
+                    "holdings_count": ctx.get("holdings_count"),
+                    "other_holdings_addresses": [
+                        h.get("address") for h in (ctx.get("other_nyc_holdings") or [])
+                        if isinstance(h, dict) and h.get("address")
+                    ],
+                    "known_affiliations": ctx.get("known_affiliations") or [],
+                }, default=str),
+            }],
+        )
+    except Exception as e:
+        log.warning("angle refinement failed: %s", e)
+        return None
+    if not resp.content:
+        return None
+    text = resp.content[0].text.strip()
+    # Strip surrounding quotes / em-dashes that sneak in despite the prompt
+    text = text.strip("\"'").replace("—", "-").replace("–", "-")
+    # Keep to one line; anything with line breaks is almost always the model
+    # over-delivering — take the first non-empty line.
+    text = next((ln.strip() for ln in text.splitlines() if ln.strip()), text)
+    return text or None

@@ -12,14 +12,26 @@ log = get_logger("dossier.writer")
 
 
 def _prospect_id(name: str, principal: str | None, event_id: str) -> str:
-    raw = f"{(principal or name or '').upper()}|{event_id}"
-    return "p_" + hashlib.sha1(raw.encode()).hexdigest()[:14]
+    """Stable ID per resolved buyer.
+
+    Keying on (principal or name) lets repeat buyers roll up across weeks — a
+    buyer who closes a $5M condo in week 1 and an $8M townhouse in week 4 gets
+    one prospect row with `holdings_count=1` after the second run (Tier 5
+    computes the count from trigger_events).
+
+    Unresolved buyers DO include event_id so they stay distinct — we never
+    want 8 different anonymous LLCs to collapse into one "UNRESOLVED" prospect.
+    """
+    key = (principal or name or "").strip().upper()
+    if not key or key == "UNRESOLVED":
+        key = f"UNRESOLVED|{event_id}"
+    return "p_" + hashlib.sha1(key.encode()).hexdigest()[:14]
 
 
 def upsert_prospect(row: dict[str, Any]) -> str:
-    """Insert or update the prospect. If the buyer was seen before (same
-    resolved_principal or legal_name), we update in place and append the new
-    trigger as last_trigger_event_id."""
+    """Insert or update the prospect. Resolved buyers roll up across weeks
+    (same principal → same prospect_id); the new trigger becomes the
+    `last_trigger_event_id`. `first_seen_date` is preserved across updates."""
     now = datetime.now(timezone.utc).isoformat()
     pid = row.get("prospect_id") or _prospect_id(
         row.get("legal_name") or "", row.get("resolved_principal"), row["last_trigger_event_id"]

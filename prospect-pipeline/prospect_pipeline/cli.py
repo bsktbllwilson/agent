@@ -27,6 +27,7 @@ from .buyer_resolver import tier5_holdings
 from .config import CONFIG
 from .contact_enricher import clay
 from .db import as_json, init_db, tx
+from .delivery import email as email_delivery
 from .dossier import briefing_md, csv_export, writer, xlsx_export
 from .profiler import claude_classifier
 from .routing import attorney_routing, managing_agents
@@ -180,6 +181,22 @@ async def _run_prospect_week(lookback_days: int, dry_run: bool) -> dict:
     contracts = [p for p in final_prospects if p.get("source") == "urbandigs"]
     top5 = sorted(hot, key=lambda p: -(p.get("trigger_price") or 0))[:5]
 
+    # Second-pass Claude refinement on hot prospects' outreach angles.
+    # Live runs only — dry-run keeps the heuristic angle for determinism. The
+    # hot bucket is usually < 10 entries/week, so the added cost is trivial
+    # compared to Clay credits.
+    if not dry_run and CONFIG.anthropic_api_key:
+        for p in hot:
+            refined = claude_classifier.refine_outreach_angle(p, dry_run=dry_run)
+            if refined:
+                p["outreach_angle"] = refined
+                # Persist the refined angle back to the DB so CSV/XLSX pick it up
+                with tx() as conn:
+                    conn.execute(
+                        "UPDATE prospects SET outreach_angle=? WHERE prospect_id=?",
+                        (refined, p["prospect_id"]),
+                    )
+
     # Write outputs
     out_dir = Path(CONFIG.output_dir)
     today = date.today().isoformat()
@@ -207,6 +224,28 @@ async def _run_prospect_week(lookback_days: int, dry_run: bool) -> dict:
         indirect=indirect,
         contracts=contracts,
     )
+
+    # Email delivery (noop if SMTP unconfigured or dry-run)
+    totals = {
+        "trigger_events": len(events),
+        "prospects": len(final_prospects),
+        "hot": len(hot),
+        "warm": len(warm),
+        "indirect": len(indirect),
+        "contracts": len(contracts),
+    }
+    delivery = email_delivery.send_briefing(
+        briefing_md_path=md_path,
+        csv_path=csv_path,
+        xlsx_path=xlsx_path,
+        totals=totals,
+        as_of_date=today,
+        dry_run=dry_run,
+    )
+    if delivery.sent:
+        log.info("briefing sent to %s", delivery.recipient)
+    else:
+        log.info("briefing not emailed: %s", delivery.reason)
 
     # Log the run
     finished = _now()
@@ -421,6 +460,37 @@ def add_building_cmd(agent_name: str, building_address: str):
         click.echo(f"linked {building_address!r} -> {agent_name}")
     else:
         click.echo(f"already linked: {building_address!r} -> {agent_name}")
+
+
+@main.command("send-briefing")
+@click.option("--briefing", "briefing_path", type=click.Path(exists=True, dir_okay=False), required=True,
+              help="Path to a briefing_YYYY-MM-DD.md to email.")
+@click.option("--csv", "csv_path", type=click.Path(exists=True, dir_okay=False), default=None)
+@click.option("--xlsx", "xlsx_path", type=click.Path(exists=True, dir_okay=False), default=None)
+@click.option("--as-of-date", default=None, help="Override the date string in the subject line.")
+@click.option("--dry-run", is_flag=True, default=False)
+def send_briefing_cmd(briefing_path: str, csv_path: str | None, xlsx_path: str | None,
+                       as_of_date: str | None, dry_run: bool):
+    """Email a prior week's briefing (CSV + XLSX attached). Useful for re-sends."""
+    setup_logging()
+    from pathlib import Path as _Path
+    md = _Path(briefing_path)
+    csv_p = _Path(csv_path) if csv_path else None
+    xlsx_p = _Path(xlsx_path) if xlsx_path else None
+    # Derive as_of_date from the filename if not provided
+    if not as_of_date:
+        # briefing_YYYY-MM-DD.md → YYYY-MM-DD
+        stem = md.stem
+        as_of_date = stem.split("_", 1)[1] if "_" in stem else stem
+    result = email_delivery.send_briefing(
+        briefing_md_path=md,
+        csv_path=csv_p,
+        xlsx_path=xlsx_p,
+        totals={"hot": "?", "warm": "?", "indirect": "?"},  # unknown on resend
+        as_of_date=as_of_date,
+        dry_run=dry_run,
+    )
+    click.echo(json.dumps({"sent": result.sent, "reason": result.reason, "recipient": result.recipient}, indent=2))
 
 
 @main.command("bulk-seed-agents")

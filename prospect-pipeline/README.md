@@ -109,6 +109,7 @@ prospect-pipeline holdings-report <name>
 prospect-pipeline mark-contacted <prospect_id> [--notes ...]
 prospect-pipeline do-not-contact <prospect_id>
 prospect-pipeline push-to-crm <prospect_id> [--target hubspot|salesforce]
+prospect-pipeline send-briefing --briefing <path> [--csv ...] [--xlsx ...]   # re-send
 prospect-pipeline seed-agents <building_address>           # single scrape
 prospect-pipeline add-building <agent_name> <address>      # manual link
 prospect-pipeline bulk-seed-agents <mapping.json>          # batch import
@@ -117,6 +118,49 @@ prospect-pipeline backfill --start YYYY-MM-DD --end YYYY-MM-DD
 prospect-pipeline health-check [--skip-network] [--skip-smoke] [--json]
 prospect-pipeline init-db
 ```
+
+## Email delivery
+
+When `SMTP_HOST` and `REPORT_RECIPIENT` are set in `.env`, the weekly run
+emails the briefing automatically after writing the output files. Body =
+rendered markdown; attachments = CSV + XLSX. Subject line includes the
+hot/warm/indirect counts so the team can triage straight from the inbox:
+
+```
+Subject: NYC prospect briefing 2026-04-22 — 3 hot / 2 warm / 8 indirect
+```
+
+Port 465 uses implicit TLS; ports 587 and 25 use STARTTLS. `SMTP_USER` /
+`SMTP_PASS` are optional (some relays accept unauthenticated localhost
+submissions). `REPORT_RECIPIENT` accepts a comma-separated list.
+
+To resend a prior week's briefing without re-running the pipeline:
+
+```bash
+prospect-pipeline send-briefing \
+  --briefing out/briefing_2026-04-22.md \
+  --csv out/prospects_2026-04-22.csv \
+  --xlsx out/prospects_2026-04-22.xlsx
+```
+
+## Repeat-buyer rollup
+
+Resolved buyers roll up across weeks — a buyer who closes two $4M+ properties
+across different weekly runs gets **one** prospect row with `holdings_count=1`
+and the other address in `other_nyc_holdings`, not two separate prospects.
+Unresolved buyers stay distinct (we never want 8 anonymous LLCs to collapse
+into a single "Unresolved" row). The **Holdings Patterns** tab in the weekly
+XLSX surfaces the rolled-up multi-property buyers.
+
+## Outreach angle refinement
+
+The classification Claude call produces a serviceable `outreach_angle`. For
+**hot prospects only** (high confidence + work contact) and when an
+`ANTHROPIC_API_KEY` is configured, the pipeline runs a second Claude call with
+the dedicated `prompts/outreach_angle_v1.txt` prompt — tighter rules (no
+em-dashes, no "exclusive/bespoke", no wealth references, 1 sentence). Live
+runs only; dry-run keeps the heuristic for determinism. Cost: one extra short
+call per hot prospect per week (<10/week typical).
 
 ## Weekly outputs
 
