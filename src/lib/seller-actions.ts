@@ -192,6 +192,24 @@ export async function deleteDraftListing(id: string): Promise<void> {
   const sb = await getServerSupabase();
   if (!sb) throw new Error("Supabase not configured.");
 
+  // Clean up any uploaded hero/owner photos before we drop the row. Files
+  // live at listings/<user_id>/<listing_id>/*. RLS on the bucket limits
+  // writes to the owner's folder so this list+remove is safe.
+  const folder = `${user.id}/${id}`;
+  const { data: files } = await sb.storage.from("listings").list(folder, {
+    limit: 100,
+  });
+  if (files && files.length > 0) {
+    const paths = files.map((f) => `${folder}/${f.name}`);
+    const { error: rmErr } = await sb.storage.from("listings").remove(paths);
+    if (rmErr) {
+      console.warn(
+        "[seller] orphan-file cleanup failed (non-fatal):",
+        rmErr.message,
+      );
+    }
+  }
+
   const { error } = await sb
     .from("listings")
     .delete()

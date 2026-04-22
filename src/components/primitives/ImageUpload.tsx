@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ImagePlus, Trash2 } from "lucide-react";
+import imageCompression from "browser-image-compression";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,20 @@ export function ImageUpload({
 
     setBusy(true);
     try {
+      // Compress before upload — skip GIFs (animations) and anything already
+      // well under the target size. Compression runs in a web worker.
+      const shouldCompress =
+        file.type !== "image/gif" && file.size > 600 * 1024;
+      const prepared = shouldCompress
+        ? await imageCompression(file, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 2000,
+            useWebWorker: true,
+            initialQuality: 0.82,
+            fileType: file.type === "image/png" ? "image/png" : "image/jpeg",
+          })
+        : file;
+
       const sb = getBrowserSupabase();
       const {
         data: { user },
@@ -67,12 +82,12 @@ export function ImageUpload({
         : `${user.id}`;
       const path = `${folder}/${Date.now()}-${Math.random()
         .toString(36)
-        .slice(2, 6)}.${extFromMime(file.type)}`;
+        .slice(2, 6)}.${extFromMime(prepared.type || file.type)}`;
 
       const { error: upErr } = await sb.storage
         .from("listings")
-        .upload(path, file, {
-          contentType: file.type,
+        .upload(path, prepared, {
+          contentType: prepared.type || file.type,
           cacheControl: "3600",
         });
       if (upErr) throw upErr;
