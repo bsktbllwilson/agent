@@ -21,7 +21,14 @@ export async function getPublishedListings(
   if (filters.neighborhood) q = q.eq("neighborhood", filters.neighborhood);
   if (filters.minPrice != null) q = q.gte("price", filters.minPrice);
   if (filters.maxPrice != null) q = q.lte("price", filters.maxPrice);
-  if (filters.search) q = q.ilike("name", `%${filters.search}%`);
+  if (filters.search) {
+    // websearch_to_tsquery handles user input safely — quoted phrases,
+    // OR, -exclude. No escaping required.
+    q = q.textSearch("search_tsv", filters.search, {
+      type: "websearch",
+      config: "english",
+    });
+  }
 
   if (opts.orderBy === "featured") {
     q = q.order("featured", { ascending: false }).order("published_at", {
