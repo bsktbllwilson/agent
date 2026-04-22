@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
+import { RealtimeNotifier } from "@/components/RealtimeNotifier";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -43,6 +44,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         {children}
+        <RealtimeNotifier />
         <Toaster position="bottom-center" richColors closeButton />
       </body>
     </html>

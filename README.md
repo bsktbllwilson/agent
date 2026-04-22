@@ -107,6 +107,18 @@ See `.env.local.example`. Vercel → Settings → Environment Variables
 - `ADMIN_EMAIL` — inbox for new-submission / new-inquiry alerts.
 - `NEXT_PUBLIC_SITE_URL` — used in email CTA links.
 
+## Realtime notifications
+
+`RealtimeNotifier` is mounted once in the root layout and subscribes to
+`INSERT`s on `public.notifications` filtered by `user_id = auth.uid()`.
+When a new row lands, a sonner toast pops with the title / body, plus an
+"Open" action that routes to `notification.href` when set. Subscription
+is reattached on `SIGNED_IN` and torn down on `SIGNED_OUT`. RLS runs on
+the stream so users only receive their own rows.
+
+Requires `0009_notifications_realtime.sql`, which adds the table to the
+default `supabase_realtime` publication. No extra env vars.
+
 ## In-app notifications
 
 `public.notifications` stores one row per event. Insertion uses the
