@@ -11,6 +11,7 @@ import {
 } from "@/lib/seller-actions";
 import { formatStatus } from "@/lib/format";
 import { Wordmark } from "@/components/Wordmark";
+import { ImageUpload } from "@/components/primitives/ImageUpload";
 import type { Listing } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Edit Listing — Pass The Plate" };
@@ -248,19 +249,24 @@ export default async function EditListingPage({ params }: { params: Params }) {
                   defaultValue={listing.owner_years ?? ""}
                   disabled={!isEditable}
                 />
-                <Field
-                  label="Owner photo URL"
-                  name="owner_photo_url"
-                  type="url"
-                  defaultValue={listing.owner_photo_url ?? ""}
-                  disabled={!isEditable}
-                />
-                <Field
-                  label="Hero image URL"
+              </div>
+              <div className="grid gap-6 lg:grid-cols-2">
+                <ImageUpload
                   name="hero_url"
-                  type="url"
-                  defaultValue={listing.hero_url ?? ""}
+                  label="Hero image"
+                  defaultUrl={listing.hero_url}
                   disabled={!isEditable}
+                  pathPrefix={listing.id}
+                  helpText="16:9 looks best on listing cards."
+                />
+                <ImageUpload
+                  name="owner_photo_url"
+                  label="Owner photo"
+                  aspect="square"
+                  defaultUrl={listing.owner_photo_url}
+                  disabled={!isEditable}
+                  pathPrefix={listing.id}
+                  helpText="Optional — a friendly face builds trust."
                 />
               </div>
             </FormSection>

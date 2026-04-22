@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { requireSignedIn } from "@/lib/auth";
 import { createDraftListing } from "@/lib/seller-actions";
 import { Wordmark } from "@/components/Wordmark";
+import { ImageUpload } from "@/components/primitives/ImageUpload";
 
 export const metadata: Metadata = { title: "New Listing — Pass The Plate" };
 export const dynamic = "force-dynamic";
@@ -66,12 +67,10 @@ export default async function NewListingPage() {
               step="1000"
               placeholder="1200000"
             />
-            <Field
-              label="Hero image URL"
+            <ImageUpload
               name="hero_url"
-              type="url"
-              placeholder="https://…"
-              hint="Paste a direct image URL. We'll add in-app uploads soon."
+              label="Hero image"
+              helpText="Your best shot of the space — this is the first thing buyers see."
             />
 
             <div className="mt-2 flex items-center justify-between gap-3">

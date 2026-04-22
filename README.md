@@ -107,6 +107,27 @@ See `.env.local.example`. Vercel → Settings → Environment Variables
 - `ADMIN_EMAIL` — inbox for new-submission / new-inquiry alerts.
 - `NEXT_PUBLIC_SITE_URL` — used in email CTA links.
 
+## Image uploads
+
+Hero and owner photos are uploaded directly to **Supabase Storage** from the
+browser. Migration `0006_listings_bucket.sql` creates the `listings` bucket
+(public read, 10 MB limit, jpg/png/webp/gif) and RLS policies that only let
+authenticated users write to their own folder:
+
+```
+listings/
+  <user_id>/
+    <listing_id>/
+      <timestamp>-<nonce>.jpg
+```
+
+The `ImageUpload` client component (used in `/sell/new` and
+`/sell/listings/[id]`) uploads, fetches the public URL, and writes it into a
+hidden form field — so the existing server actions keep working unchanged.
+
+Remote image hosts are allowlisted in `next.config.mjs` (`*.supabase.co`)
+so `next/image` renders uploaded images without transformation errors.
+
 ## Seller flow & RLS
 
 Migration `supabase/migrations/0003_listing_rls.sql` enables RLS on
