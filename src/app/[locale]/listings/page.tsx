@@ -70,23 +70,22 @@ export default async function ListingsPage({
     <main className="min-h-[100dvh]">
       <SiteHeader nav={home.nav} />
 
-      <section className="container-px mt-12">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
-          <h1 className="text-section text-ink">
-            {t("headingPrefix")}{" "}
-            <span className="italic">{t("headingItalic")}</span>
-          </h1>
-          <p className="max-w-2xl text-lg text-ink/70">{t("subhead")}</p>
-        </div>
+      <section className="container-px py-16 sm:py-24 text-center">
+        <h1 className="mx-auto max-w-4xl font-display text-[clamp(3rem,8vw,7rem)] leading-[0.95]">
+          {t("headingPrefix")} {t("headingItalic")}
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-ink/70">
+          {t("subhead")}
+        </p>
       </section>
 
-      <section className="container-px mt-8">
+      <section className="container-px">
         <div className="mx-auto max-w-[1440px]">
           <FilterBar facets={facets} current={sp} />
         </div>
       </section>
 
-      <section className="container-px mt-10">
+      <section className="container-px mt-12">
         <div className="mx-auto max-w-[1440px]">
           {listings.length === 0 ? (
             <EmptyState hasFilters={hasFilters} />
@@ -95,7 +94,7 @@ export default async function ListingsPage({
               <p className="text-sm text-ink/60">
                 {t("count", { count: listings.length })}
               </p>
-              <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {listings.map((l) => (
                   <ListingPreviewCard
                     key={l.id}

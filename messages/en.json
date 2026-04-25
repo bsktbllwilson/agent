@@ -29,7 +29,32 @@
     "sellCta": "Sell A Business"
   },
   "hero": {
-    "find": "Find"
+    "find": "Find A Seat",
+    "cityPlaceholder": "City, State",
+    "industryPlaceholder": "All Industries"
+  },
+  "homepage": {
+    "trendingHeading": "Trending Hotspots",
+    "moreListings": "More Listings",
+    "platesHeading": "Our Plates Are Full",
+    "platesGetStarted": "Get Started",
+    "platesMarketTools": "Market Tools",
+    "platesViewSources": "View Sources",
+    "platesAccessPlaybooks": "Access Playbooks",
+    "platesBilingualTitle": "Bilingual Listing",
+    "platesBilingualBody": "List in 10 minutes from any device. Native support for Mandarin, Korean, and Vietnamese. Invisible to English-only competitors.",
+    "platesDataTitle": "Market Data",
+    "platesDataBody": "Valuations backed by 50+ SBA and US Census Bureau data sources — because every number means something.",
+    "platesDemandTitle": "Vetted Demand",
+    "platesDemandBody": "Buyers must show proof of funds or SBA pre-qualification before seller contacts are released. Vetted by our advisors. Zero spam.",
+    "platesCuratedTitle": "Curated Resources",
+    "platesCuratedBody": "Playbooks, partner directory, and step-by-step guides — built with attorneys and operators who have closed these deals.",
+    "statsHeading": "A Market Long Overlooked",
+    "stat1": "$240B+ Asian F&B sector changing hands right now.",
+    "stat2": "Asian-owned employer firms generating $1.2 trillion in annual receipts.",
+    "stat3": "Private business assets transferring as Baby Boomers retire by 2030.",
+    "stat4": "Vetted partners — SBA lenders, bilingual brokers, and immigration attorneys.",
+    "partnersHeading": "Our Partners"
   },
   "subscribe": {
     "invalidEmail": "Please enter a valid email."

@@ -27,54 +27,52 @@ export function ListingPreviewCard({
   showSaveButton = false,
 }: Props) {
   const href = listing.slug ? `/listings/${listing.slug}` : "#";
-  const tag = listing.subtype || listing.cuisine || "Business";
+  const meta = [listing.neighborhood, listing.cuisine || listing.subtype]
+    .filter(Boolean)
+    .join(" | ");
 
   return (
     <Link
       href={href}
-      className="group flex flex-col gap-4 focus-visible:outline-none"
+      className="group relative isolate flex aspect-[5/7] items-end overflow-hidden rounded-[28px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.5rem] bg-ink/5">
-        {listing.hero_url ? (
-          <Image
-            src={listing.hero_url}
-            alt={listing.name}
-            fill
-            sizes="(max-width: 768px) 85vw, (max-width: 1280px) 33vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="grid h-full w-full place-items-center bg-orange/10 text-ink/40 font-display text-5xl">
-            {listing.name.slice(0, 1)}
-          </div>
-        )}
-        <span className="absolute left-4 top-4 rounded-full bg-cream px-3 py-1 text-xs font-medium tracking-wide text-ink">
-          {tag}
+      {listing.hero_url ? (
+        <Image
+          src={listing.hero_url}
+          alt={listing.name}
+          fill
+          sizes="(max-width: 768px) 85vw, (max-width: 1280px) 33vw, 25vw"
+          className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+        />
+      ) : (
+        <div className="absolute inset-0 grid place-items-center bg-orange/15 font-display text-7xl text-ink/40">
+          {listing.name.slice(0, 1)}
+        </div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-transparent" />
+
+      {listing.featured && (
+        <span className="absolute left-4 top-4 z-20 rounded-full bg-orange px-3 py-1 text-xs font-medium uppercase tracking-wide text-cream">
+          Featured
         </span>
-        {listing.featured && (
-          <span className="absolute right-4 bottom-4 rounded-full bg-orange px-3 py-1 text-xs font-medium text-cream">
-            Featured
-          </span>
-        )}
-        {showSaveButton && listing.slug && (
-          <div className="absolute right-3 top-3">
-            <SaveListingButton
-              listingId={listing.id}
-              initialSaved={saved}
-              redirectPath={`/listings/${listing.slug}`}
-              size="sm"
-            />
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-1">
-        <h3 className="font-display text-2xl leading-tight text-ink group-hover:underline underline-offset-4">
+      )}
+      {showSaveButton && listing.slug && (
+        <div className="absolute right-3 top-3 z-20">
+          <SaveListingButton
+            listingId={listing.id}
+            initialSaved={saved}
+            redirectPath={`/listings/${listing.slug}`}
+            size="sm"
+          />
+        </div>
+      )}
+
+      <div className="relative z-10 flex w-full flex-col items-center gap-1 p-6 text-center text-cream">
+        <h3 className="font-display text-[clamp(1.5rem,2.4vw,2.5rem)] leading-[1.05]">
           {listing.name}
         </h3>
-        {listing.neighborhood && (
-          <p className="text-sm text-ink-muted">{listing.neighborhood}</p>
-        )}
-        <p className="mt-1 text-lg font-medium text-ink">
+        {meta && <p className="text-sm text-cream/85">{meta}</p>}
+        <p className="mt-1 text-base font-semibold">
           {formatPrice(listing.price)}
         </p>
       </div>

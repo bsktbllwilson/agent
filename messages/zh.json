@@ -29,7 +29,32 @@
     "sellCta": "出售企业"
   },
   "hero": {
-    "find": "搜索"
+    "find": "找到席位",
+    "cityPlaceholder": "城市,州",
+    "industryPlaceholder": "全部行业"
+  },
+  "homepage": {
+    "trendingHeading": "热门企业",
+    "moreListings": "更多房源",
+    "platesHeading": "品类齐全",
+    "platesGetStarted": "开始使用",
+    "platesMarketTools": "查看工具",
+    "platesViewSources": "数据来源",
+    "platesAccessPlaybooks": "查看手册",
+    "platesBilingualTitle": "双语挂牌",
+    "platesBilingualBody": "10 分钟即可上架。支持中文、韩语、越南语 — 只用英语的竞品看不到您。",
+    "platesDataTitle": "市场数据",
+    "platesDataBody": "估值依据 50+ 项 SBA 与美国人口普查局数据 — 每个数字都有意义。",
+    "platesDemandTitle": "审核需求",
+    "platesDemandBody": "买家须出具资金证明或 SBA 预批,方可获得卖家联系方式。我们的顾问全程把关,杜绝骚扰。",
+    "platesCuratedTitle": "精选资源",
+    "platesCuratedBody": "操作手册、合作伙伴目录与分步指南 — 由律师与曾促成此类交易的经营者共同打造。",
+    "statsHeading": "长期被忽视的市场",
+    "stat1": "$2400 亿+ 的亚洲餐饮市场正在易主。",
+    "stat2": "亚裔经营企业创造 1.2 万亿美元年营业额。",
+    "stat3": "婴儿潮一代退休前将完成大量私营企业资产交接。",
+    "stat4": "审核合作伙伴 — SBA 贷款机构、双语经纪人与移民律师。",
+    "partnersHeading": "合作伙伴"
   },
   "subscribe": {
     "invalidEmail": "请输入有效的邮箱地址。"
