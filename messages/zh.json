@@ -257,5 +257,31 @@
   "saveListing": {
     "save": "收藏房源",
     "unsave": "取消收藏"
+  },
+  "playbook": {
+    "metaTitle": "操作手册 — Pass The Plate",
+    "metaDescription": "买卖亚洲餐饮企业的分步指南 — 涵盖签证、融资、估值、尽职调查等。",
+    "heroTitle": "操作手册",
+    "filterAll": "查看全部",
+    "filters": {
+      "buying": "买入",
+      "selling": "出售",
+      "legal": "法律",
+      "visa": "签证与移民",
+      "marketEntry": "市场进入",
+      "operations": "运营",
+      "finance": "融资"
+    },
+    "readGuide": "阅读指南",
+    "subscribeCardTitle": "订阅每周指南",
+    "subscribeCardBody": "新指南、市场数据与并购情报 — 每周直达邮箱。",
+    "subscribeEmail": "邮箱地址",
+    "subscribeCta": "订阅",
+    "previous": "上一页",
+    "next": "下一页",
+    "bigDealHeading": "找到您的下一笔好交易",
+    "bigDealBody": "与我们的顾问免费咨询您的下一笔生意。",
+    "bigDealCta": "立即联系",
+    "subscribed": "感谢订阅 — 我们将很快与您联系。"
   }
 }

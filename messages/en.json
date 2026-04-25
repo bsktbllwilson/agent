@@ -257,5 +257,31 @@
   "saveListing": {
     "save": "Save listing",
     "unsave": "Unsave listing"
+  },
+  "playbook": {
+    "metaTitle": "The Playbook — Pass The Plate",
+    "metaDescription": "Step-by-step guides for buying and selling Asian F&B businesses — visas, financing, valuation, due diligence, and more.",
+    "heroTitle": "The Playbook",
+    "filterAll": "Read All",
+    "filters": {
+      "buying": "Buying",
+      "selling": "Selling",
+      "legal": "Legal",
+      "visa": "Visa & Immigration",
+      "marketEntry": "Market Entry",
+      "operations": "Operations",
+      "finance": "Finance"
+    },
+    "readGuide": "Read Guide",
+    "subscribeCardTitle": "Subscribe For Weekly Guides",
+    "subscribeCardBody": "New playbooks, market data, and deal intel — delivered weekly.",
+    "subscribeEmail": "Email Address",
+    "subscribeCta": "Subscribe",
+    "previous": "Previous Page",
+    "next": "Next Page",
+    "bigDealHeading": "Find Your Next Big Deal",
+    "bigDealBody": "Get in touch with our advisor for a complimentary consultation on your next venture.",
+    "bigDealCta": "Get In Touch",
+    "subscribed": "Thanks — we'll be in touch."
   }
 }
