@@ -1,8 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getListingBySlug } from "@/lib/listings";
 import { getSavedListingIds } from "@/lib/saved-listings";
 import { getCurrentUser } from "@/lib/auth";
@@ -14,25 +15,28 @@ import {
   formatEstablished,
 } from "@/lib/format";
 import { Wordmark } from "@/components/Wordmark";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SaveListingButton } from "@/components/primitives/SaveListingButton";
 import { ContactSellerForm } from "@/components/primitives/ContactSellerForm";
 import { ViewTracker } from "@/components/primitives/ViewTracker";
+import type { Locale } from "@/i18n/routing";
 
 export const dynamic = "force-dynamic";
 
-type Params = Promise<{ slug: string }>;
+type Params = Promise<{ slug: string; locale: Locale }>;
 
 export async function generateMetadata({
   params,
 }: {
   params: Params;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  const t = await getTranslations({ locale, namespace: "listingDetail" });
   const listing = await getListingBySlug(slug);
-  if (!listing) return { title: "Listing not found — Pass The Plate" };
+  if (!listing) return { title: t("notFoundTitle") };
   return {
     title: `${listing.name} — Pass The Plate`,
-    description: listing.reason ?? `${listing.name} in ${listing.neighborhood ?? ""}`,
+    description: listing.reason ?? `${listing.name} ${listing.neighborhood ?? ""}`,
     openGraph: {
       title: listing.name,
       description: listing.reason ?? undefined,
@@ -46,7 +50,10 @@ export default async function ListingDetailPage({
 }: {
   params: Params;
 }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("listingDetail");
+  const tHeader = await getTranslations("header");
   const [listing, user] = await Promise.all([
     getListingBySlug(slug),
     getCurrentUser(),
@@ -56,14 +63,14 @@ export default async function ListingDetailPage({
   const isSaved = savedIds.has(listing.id);
 
   const specs: { label: string; value: string }[] = [
-    { label: "Asking price", value: formatPrice(listing.price) },
-    { label: "Annual revenue", value: formatRevenue(listing.revenue) },
-    { label: "SDE", value: formatRevenue(listing.sde) },
-    { label: "Square feet", value: formatArea(listing.sqft) },
-    { label: "Monthly rent", value: formatRevenue(listing.rent) },
-    { label: "Lease remaining", value: formatYears(listing.lease_years) },
-    { label: "Staff", value: listing.staff != null ? String(listing.staff) : "—" },
-    { label: "Established", value: formatEstablished(listing.established) },
+    { label: t("askingPrice"), value: formatPrice(listing.price) },
+    { label: t("annualRevenue"), value: formatRevenue(listing.revenue) },
+    { label: t("sde"), value: formatRevenue(listing.sde) },
+    { label: t("sqft"), value: formatArea(listing.sqft) },
+    { label: t("monthlyRent"), value: formatRevenue(listing.rent) },
+    { label: t("leaseRemaining"), value: formatYears(listing.lease_years) },
+    { label: t("staff"), value: listing.staff != null ? String(listing.staff) : "—" },
+    { label: t("established"), value: formatEstablished(listing.established) },
   ];
 
   const hasFinancials =
@@ -78,16 +85,19 @@ export default async function ListingDetailPage({
       <ViewTracker listingId={listing.id} />
       <div className="container-px pt-10">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-          <Link href="/" aria-label="Pass The Plate home">
+          <Link href="/" aria-label={tHeader("ariaHome")}>
             <Wordmark tone="ink" />
           </Link>
-          <Link
-            href="/listings"
-            className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-          >
-            <ArrowLeft aria-hidden className="size-4" />
-            All listings
-          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <Link
+              href="/listings"
+              className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
+            >
+              <ArrowLeft aria-hidden className="size-4" />
+              {t("allListings")}
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -118,7 +128,7 @@ export default async function ListingDetailPage({
                 {listing.neighborhood && <Chip>{listing.neighborhood}</Chip>}
                 {listing.featured && (
                   <span className="rounded-full bg-orange px-3 py-1 uppercase tracking-[0.12em] text-cream">
-                    Featured
+                    {t("featured")}
                   </span>
                 )}
               </div>
@@ -139,38 +149,38 @@ export default async function ListingDetailPage({
             </header>
 
             {listing.reason && (
-              <Section title="Why the owner is selling" body={listing.reason} />
+              <Section title={t("whyOwnerSelling")} body={listing.reason} />
             )}
             {listing.owner_story && (
-              <Section title="The story" body={listing.owner_story} />
+              <Section title={t("theStory")} body={listing.owner_story} />
             )}
             {listing.secret_sauce && (
-              <Section title="Secret sauce" body={listing.secret_sauce} />
+              <Section title={t("secretSauce")} body={listing.secret_sauce} />
             )}
 
             {hasFinancials && (
               <section className="mt-12">
                 <h2 className="font-display text-3xl text-ink">
-                  Deal mechanics
+                  {t("dealMechanics")}
                 </h2>
                 <dl className="mt-6 grid gap-6 sm:grid-cols-2">
                   {listing.lease_terms && (
-                    <DlRow label="Lease terms" value={listing.lease_terms} />
+                    <DlRow label={t("leaseTerms")} value={listing.lease_terms} />
                   )}
                   {listing.staff_retention && (
                     <DlRow
-                      label="Staff retention"
+                      label={t("staffRetention")}
                       value={listing.staff_retention}
                     />
                   )}
                   {listing.vendor_contracts && (
                     <DlRow
-                      label="Vendor contracts"
+                      label={t("vendorContracts")}
                       value={listing.vendor_contracts}
                     />
                   )}
                   {listing.handoff_notes && (
-                    <DlRow label="Handoff" value={listing.handoff_notes} />
+                    <DlRow label={t("handoff")} value={listing.handoff_notes} />
                   )}
                 </dl>
                 {listing.p_and_l_url && (
@@ -180,7 +190,7 @@ export default async function ListingDetailPage({
                     rel="noopener noreferrer"
                     className="mt-6 inline-flex rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
                   >
-                    Download P&amp;L
+                    {t("downloadPnl")}
                   </a>
                 )}
               </section>
@@ -189,7 +199,9 @@ export default async function ListingDetailPage({
 
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-[1.5rem] border border-ink/10 bg-white p-6">
-              <h2 className="font-display text-2xl text-ink">At a glance</h2>
+              <h2 className="font-display text-2xl text-ink">
+                {t("atAGlance")}
+              </h2>
               <dl className="mt-4 divide-y divide-ink/10">
                 {specs.map((s) => (
                   <div
@@ -213,13 +225,16 @@ export default async function ListingDetailPage({
               ) : (
                 <>
                   <Link
-                    href={`/signin?next=${encodeURIComponent(`/listings/${listing.slug ?? ""}`)}`}
+                    href={{
+                      pathname: "/signin",
+                      query: { next: `/listings/${listing.slug ?? ""}` },
+                    }}
                     className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-orange px-6 py-3 text-base font-medium text-cream transition-colors hover:bg-[rgb(210,68,28)]"
                   >
-                    Sign in to request intro
+                    {t("signInToContact")}
                   </Link>
                   <p className="mt-3 text-center text-xs text-ink/50">
-                    We verify every buyer before connecting them with sellers.
+                    {t("verifiedBuyersNote")}
                   </p>
                 </>
               )}
@@ -246,8 +261,10 @@ export default async function ListingDetailPage({
                   </div>
                   <div className="text-sm text-ink/60">
                     {listing.owner_years
-                      ? `${formatYears(listing.owner_years)} as owner`
-                      : "Owner-operator"}
+                      ? t("ownerYears", {
+                          years: formatYears(listing.owner_years),
+                        })
+                      : t("ownerOperator")}
                   </div>
                 </div>
               </div>

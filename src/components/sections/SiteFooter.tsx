@@ -1,9 +1,11 @@
+import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/Wordmark";
 import type { Homepage } from "../../../content/schema";
 
 type Data = Homepage["footer"];
 
 export function SiteFooter({ data }: { data: Data }) {
+  const t = useTranslations("footer");
   return (
     <footer className="border-t border-ink/10 pt-16 pb-10 container-px">
       <div className="mx-auto max-w-[1440px]">
@@ -38,10 +40,10 @@ export function SiteFooter({ data }: { data: Data }) {
           <span>{data.legal}</span>
           <div className="flex gap-5">
             <a href="#privacy" className="hover:text-ink">
-              Privacy
+              {t("privacy")}
             </a>
             <a href="#terms" className="hover:text-ink">
-              Terms
+              {t("terms")}
             </a>
           </div>
         </div>

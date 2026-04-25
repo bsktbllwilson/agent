@@ -3,6 +3,7 @@
 import { ChevronDown, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import type { Homepage } from "../../../content/schema";
 
 type HeroData = Homepage["hero"];
@@ -10,6 +11,7 @@ type HeroData = Homepage["hero"];
 export function Hero({ hero }: { hero: HeroData }) {
   const [city, setCity] = useState("");
   const [industry, setIndustry] = useState("");
+  const t = useTranslations("hero");
 
   const parts = hero.headline.split(hero.italicWord);
 
@@ -68,7 +70,7 @@ export function Hero({ hero }: { hero: HeroData }) {
               type="submit"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-orange px-8 py-4 text-lg font-medium text-cream transition-colors hover:bg-[rgb(210,68,28)]"
             >
-              Find
+              {t("find")}
               <ArrowRight aria-hidden className="size-5" />
             </button>
           </div>

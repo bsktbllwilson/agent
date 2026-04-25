@@ -1,12 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import createIntlMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
+
+const intlMiddleware = createIntlMiddleware(routing);
 
 // Refreshes the Supabase session cookie on every request so Server Components
 // always see a fresh user. Skipped if env vars are missing (dev without Supabase).
 export async function middleware(request: NextRequest) {
+  // Run next-intl first so it handles locale negotiation/redirects.
+  const response = intlMiddleware(request);
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const response = NextResponse.next({ request });
   if (!url || !anon) return response;
 
   const supabase = createServerClient(url, anon, {
@@ -25,5 +31,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon|og|.*\\.svg).*)"],
+  // Skip Next internals, static files, and routes that don't need locale handling.
+  matcher: [
+    "/((?!api|auth/callback|_next/static|_next/image|favicon|og|robots\\.txt|sitemap\\.xml|.*\\.svg|.*\\.png|.*\\.jpg|.*\\.ico).*)",
+  ],
 };

@@ -1,6 +1,7 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { requireSignedIn } from "@/lib/auth";
 import {
   EVENT_TYPES,
@@ -9,50 +10,67 @@ import {
 } from "@/lib/notification-preferences";
 import { updatePreferences } from "@/lib/preference-actions";
 import { Wordmark } from "@/components/Wordmark";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import type { Locale } from "@/i18n/routing";
 
-export const metadata: Metadata = {
-  title: "Notification Settings — Pass The Plate",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "accountSettings" });
+  return { title: t("metaTitle") };
+}
+
 export const dynamic = "force-dynamic";
 
-export default async function NotificationSettingsPage() {
+export default async function NotificationSettingsPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   await requireSignedIn();
+  const t = await getTranslations("accountSettings");
+  const tHeader = await getTranslations("header");
   const prefs = await getOwnPreferences();
 
   return (
     <main className="min-h-[100dvh] pb-24">
       <div className="container-px pt-10">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-          <Link href="/" aria-label="Pass The Plate home">
+          <Link href="/" aria-label={tHeader("ariaHome")}>
             <Wordmark tone="ink" />
           </Link>
-          <Link
-            href="/account"
-            className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-          >
-            <ArrowLeft aria-hidden className="size-4" />
-            Back to account
-          </Link>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <Link
+              href="/account"
+              className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
+            >
+              <ArrowLeft aria-hidden className="size-4" />
+              {t("backToAccount")}
+            </Link>
+          </div>
         </div>
       </div>
 
       <section className="container-px mt-12">
         <div className="mx-auto max-w-[720px]">
           <h1 className="text-section text-ink">
-            Notification <span className="italic">settings</span>
+            {t("headingBefore")}
+            <span className="italic">{t("headingItalic")}</span>
           </h1>
-          <p className="mt-2 text-ink/70">
-            Choose how you hear from us. Toasts appear in the app when
-            you&apos;re signed in; email is nice if you live out of your
-            inbox.
-          </p>
+          <p className="mt-2 text-ink/70">{t("subhead")}</p>
 
           <form action={updatePreferences} className="mt-10 flex flex-col gap-6">
             <div className="overflow-hidden rounded-[1.5rem] border border-ink/10 bg-white">
               <div className="hidden grid-cols-[1fr_auto_auto] items-center gap-6 border-b border-ink/10 px-6 py-3 text-xs font-medium uppercase tracking-[0.12em] text-ink/50 sm:grid">
-                <span>Event</span>
-                <span className="text-center">In-app</span>
-                <span className="text-center">Email</span>
+                <span>{t("event")}</span>
+                <span className="text-center">{t("inApp")}</span>
+                <span className="text-center">{t("email")}</span>
               </div>
               <ul className="divide-y divide-ink/10">
                 {EVENT_TYPES.map((evt) => (
@@ -71,12 +89,12 @@ export default async function NotificationSettingsPage() {
                     <Toggle
                       name={`${evt}_in_app`}
                       defaultChecked={prefs[`${evt}_in_app`]}
-                      label={`In-app: ${EVENT_LABELS[evt].title}`}
+                      label={`${t("inApp")}: ${EVENT_LABELS[evt].title}`}
                     />
                     <Toggle
                       name={`${evt}_email`}
                       defaultChecked={prefs[`${evt}_email`]}
-                      label={`Email: ${EVENT_LABELS[evt].title}`}
+                      label={`${t("email")}: ${EVENT_LABELS[evt].title}`}
                     />
                   </li>
                 ))}
@@ -87,17 +105,16 @@ export default async function NotificationSettingsPage() {
               <div className="flex items-start justify-between gap-6">
                 <div>
                   <div className="font-display text-lg text-ink">
-                    Daily digest
+                    {t("digestTitle")}
                   </div>
                   <div className="mt-1 text-sm text-ink/60">
-                    One email per day summarizing anything you haven&apos;t
-                    read yet. Skipped on days without activity.
+                    {t("digestBody")}
                   </div>
                 </div>
                 <Toggle
                   name="digest_email"
                   defaultChecked={prefs.digest_email}
-                  label="Daily digest email"
+                  label={t("digestLabel")}
                 />
               </div>
             </div>
@@ -107,7 +124,7 @@ export default async function NotificationSettingsPage() {
                 type="submit"
                 className="rounded-full bg-orange px-6 py-3 text-sm font-medium text-cream transition-colors hover:bg-[rgb(210,68,28)]"
               >
-                Save preferences
+                {t("savePreferences")}
               </button>
             </div>
           </form>

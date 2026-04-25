@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { FadeIn } from "@/components/primitives/FadeIn";
 import type { Homepage } from "../../../content/schema";
 
@@ -10,6 +11,7 @@ type Data = Homepage["subscribe"];
 
 export function Subscribe({ data }: { data: Data }) {
   const [email, setEmail] = useState("");
+  const t = useTranslations("subscribe");
   const parts = data.italicWord
     ? data.heading.split(data.italicWord)
     : [data.heading];
@@ -17,7 +19,7 @@ export function Subscribe({ data }: { data: Data }) {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!email || !/.+@.+\..+/.test(email)) {
-      toast.error("Please enter a valid email.");
+      toast.error(t("invalidEmail"));
       return;
     }
     toast.success(data.success);

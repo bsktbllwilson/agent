@@ -1,3 +1,4 @@
+import { setRequestLocale } from "next-intl/server";
 import { getHomepage } from "@/lib/content";
 import { SiteHeader } from "@/components/sections/SiteHeader";
 import { Hero } from "@/components/sections/Hero";
@@ -8,12 +9,19 @@ import { StatsBand } from "@/components/sections/StatsBand";
 import { PartnerLogos } from "@/components/sections/PartnerLogos";
 import { Subscribe } from "@/components/sections/Subscribe";
 import { SiteFooter } from "@/components/sections/SiteFooter";
+import type { Locale } from "@/i18n/routing";
 
 // Revalidate homepage every 60s so featured listings stay fresh.
 export const revalidate = 60;
 
-export default async function HomePage() {
-  const content = getHomepage();
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const content = getHomepage(locale);
   return (
     <main className="bg-cream">
       <SiteHeader nav={content.nav} />
