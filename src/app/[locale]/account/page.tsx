@@ -13,8 +13,9 @@ import {
   markNotificationRead,
 } from "@/lib/notification-actions";
 import { ListingPreviewCard } from "@/components/primitives/ListingPreviewCard";
-import { Wordmark } from "@/components/Wordmark";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SiteHeader } from "@/components/sections/SiteHeader";
+import { SiteFooter } from "@/components/sections/SiteFooter";
+import { getHomepage } from "@/lib/content";
 import { signOut } from "@/lib/actions";
 import type { Locale } from "@/i18n/routing";
 
@@ -39,7 +40,7 @@ export default async function AccountPage({
   setRequestLocale(locale);
   await requireSignedIn();
   const t = await getTranslations("account");
-  const tHeader = await getTranslations("header");
+  const home = getHomepage(locale);
   const dateLocale = locale === "zh" ? "zh-CN" : "en-US";
   const [user, role, saved, savedIds, notifications, unread] =
     await Promise.all([
@@ -56,79 +57,56 @@ export default async function AccountPage({
     (user?.email?.split("@")[0] ?? t("guestName"));
 
   return (
-    <main className="min-h-[100dvh] pb-24">
-      <div className="container-px pt-10">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-          <Link href="/" aria-label={tHeader("ariaHome")}>
-            <Wordmark tone="ink" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <Link
-              href="/listings"
-              className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-            >
-              {t("browse")}
-            </Link>
-            <Link
-              href="/sell/listings"
-              className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-            >
-              {t("sell")}
-            </Link>
-            <Link
-              href="/account/settings"
-              className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-            >
-              {t("settings")}
-            </Link>
-            {role === "admin" && (
-              <Link
-                href="/admin"
-                className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-              >
-                {t("admin")}
-              </Link>
-            )}
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-              >
-                {t("signOut")}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
+    <main className="min-h-[100dvh]">
+      <SiteHeader nav={home.nav} />
 
-      <section className="container-px mt-12">
-        <div className="mx-auto max-w-[1440px]">
-          <h1 className="text-hero text-ink">
-            {t("greeting")} <span className="italic">{firstName}</span>
-          </h1>
-          <div className="mt-4 flex flex-wrap gap-2 text-sm text-ink/70">
-            <span className="rounded-full border border-ink/15 px-3 py-1">
-              {user?.email}
-            </span>
-            {role && (
-              <span className="rounded-full border border-ink/15 px-3 py-1 capitalize">
-                {role}
-              </span>
-            )}
+      {/* Greeting card */}
+      <section className="container-px py-12 sm:py-16">
+        <div className="mx-auto max-w-[1440px] rounded-[40px] bg-white p-8 sm:rounded-[60px] sm:p-12 lg:p-16">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h1 className="font-display text-[clamp(2.5rem,6vw,5rem)] leading-[0.95]">
+                {t("greeting")} {firstName}
+              </h1>
+              <div className="mt-4 flex flex-wrap gap-2 text-sm text-ink/70">
+                <span className="rounded-full border border-ink/15 px-3 py-1">
+                  {user?.email}
+                </span>
+                {role && (
+                  <span className="rounded-full border border-ink/15 px-3 py-1 capitalize">
+                    {role}
+                  </span>
+                )}
+              </div>
+            </div>
+            <nav className="flex flex-wrap gap-2">
+              <NavPill href="/listings" label={t("browse")} />
+              <NavPill href="/sell/listings" label={t("sell")} />
+              <NavPill href="/account/settings" label={t("settings")} />
+              {role === "admin" && <NavPill href="/admin" label={t("admin")} />}
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="rounded-full border border-ink/15 bg-cream px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
+                >
+                  {t("signOut")}
+                </button>
+              </form>
+            </nav>
           </div>
         </div>
       </section>
 
+      {/* Activity */}
       {notifications.length > 0 && (
-        <section className="container-px mt-14">
+        <section className="container-px pb-12">
           <div className="mx-auto max-w-[1440px]">
             <div className="flex items-end justify-between gap-4">
-              <h2 className="flex items-center gap-3 font-display text-3xl text-ink sm:text-4xl">
-                <Bell aria-hidden className="size-7 text-orange" />
+              <h2 className="flex items-center gap-3 font-display text-[clamp(2rem,4vw,3.25rem)] leading-none">
+                <Bell aria-hidden className="size-7 text-orange sm:size-9" />
                 {t("activity")}
                 {unread > 0 && (
-                  <span className="rounded-full bg-orange px-2.5 py-1 text-xs font-medium text-cream">
+                  <span className="rounded-full bg-orange px-3 py-1 text-sm font-medium text-cream">
                     {t("newCount", { count: unread })}
                   </span>
                 )}
@@ -137,14 +115,14 @@ export default async function AccountPage({
                 <form action={markAllNotificationsRead}>
                   <button
                     type="submit"
-                    className="rounded-full border border-ink/15 px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
+                    className="rounded-full border border-ink/15 bg-cream px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
                   >
                     {t("markAllRead")}
                   </button>
                 </form>
               )}
             </div>
-            <ul className="mt-6 flex flex-col gap-3">
+            <ul className="mt-8 flex flex-col gap-3">
               {notifications.map((n) => {
                 const isUnread = !n.read_at;
                 async function markRead() {
@@ -154,24 +132,26 @@ export default async function AccountPage({
                 return (
                   <li key={n.id}>
                     <article
-                      className={`flex items-start gap-4 rounded-[1.25rem] border border-ink/10 bg-white p-5 ${
-                        isUnread ? "ring-1 ring-orange/30" : ""
+                      className={`flex items-start gap-4 rounded-[24px] border bg-white p-6 ${
+                        isUnread ? "border-orange/30 ring-1 ring-orange/20" : "border-ink/10"
                       }`}
                     >
                       <div
                         aria-hidden
                         className={`mt-2 size-2.5 shrink-0 rounded-full ${
-                          isUnread ? "bg-orange" : "bg-ink/15"
+                          isUnread ? "bg-orange" : "bg-ink/20"
                         }`}
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="font-display text-lg text-ink">
+                        <div className="font-display text-xl text-ink sm:text-2xl">
                           {n.title}
                         </div>
                         {n.body && (
-                          <p className="mt-1 text-sm text-ink/70">{n.body}</p>
+                          <p className="mt-2 text-sm text-ink/70 sm:text-base">
+                            {n.body}
+                          </p>
                         )}
-                        <div className="mt-2 flex items-center gap-3 text-xs text-ink/50">
+                        <div className="mt-3 flex items-center gap-3 text-xs text-ink/50">
                           <span>
                             {new Date(n.created_at).toLocaleString(dateLocale, {
                               month: "short",
@@ -195,7 +175,7 @@ export default async function AccountPage({
                           <button
                             type="submit"
                             aria-label={t("markRead")}
-                            className="inline-flex size-8 items-center justify-center rounded-full border border-ink/15 text-ink/60 transition-colors hover:border-ink hover:text-ink"
+                            className="inline-flex size-9 items-center justify-center rounded-full border border-ink/15 text-ink/60 transition-colors hover:border-ink hover:text-ink"
                           >
                             <Check aria-hidden className="size-4" />
                           </button>
@@ -210,32 +190,33 @@ export default async function AccountPage({
         </section>
       )}
 
-      <section className="container-px mt-14">
+      {/* Saved listings */}
+      <section className="container-px pb-20">
         <div className="mx-auto max-w-[1440px]">
           <div className="flex items-end justify-between gap-4">
-            <h2 className="font-display text-3xl text-ink sm:text-4xl">
+            <h2 className="font-display text-[clamp(2rem,4vw,3.25rem)] leading-none">
               {t("savedListings")}
             </h2>
-            <span className="text-sm text-ink/60">
+            <span className="text-sm text-ink/60 sm:text-base">
               {t("savedCount", { count: saved.length })}
             </span>
           </div>
 
           {saved.length === 0 ? (
-            <div className="mt-8 rounded-[1.5rem] border border-ink/10 bg-white p-12 text-center">
-              <h3 className="font-display text-2xl text-ink">
+            <div className="mt-10 rounded-[40px] bg-white p-12 text-center sm:rounded-[60px] sm:p-16">
+              <h3 className="font-display text-3xl text-ink sm:text-4xl">
                 {t("emptySavedHeading")}
               </h3>
-              <p className="mt-2 text-ink/70">{t("emptySavedBody")}</p>
+              <p className="mt-3 text-ink/70">{t("emptySavedBody")}</p>
               <Link
                 href="/listings"
-                className="mt-6 inline-flex rounded-full bg-orange px-6 py-3 text-sm font-medium text-cream transition-colors hover:bg-[rgb(210,68,28)]"
+                className="mt-8 inline-flex items-center gap-2 rounded-[25px] border border-ink bg-orange px-7 py-4 text-sm font-semibold uppercase tracking-wide text-cream transition-colors hover:bg-[rgb(210,68,28)]"
               >
                 {t("browseListings")}
               </Link>
             </div>
           ) : (
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {saved.map((l) => (
                 <ListingPreviewCard
                   key={l.id}
@@ -248,6 +229,19 @@ export default async function AccountPage({
           )}
         </div>
       </section>
+
+      <SiteFooter data={home.footer} />
     </main>
+  );
+}
+
+function NavPill({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="rounded-full border border-ink/15 bg-cream px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
+    >
+      {label}
+    </Link>
   );
 }
