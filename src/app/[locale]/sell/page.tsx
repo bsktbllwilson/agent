@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { ArrowRight, Handshake, ShieldCheck, Users } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { Wordmark } from "@/components/Wordmark";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SiteHeader } from "@/components/sections/SiteHeader";
+import { SiteFooter } from "@/components/sections/SiteFooter";
+import { BottomCtaStrip } from "@/components/sections/BottomCtaStrip";
 import { getCurrentUser } from "@/lib/auth";
+import { getHomepage } from "@/lib/content";
 import type { Locale } from "@/i18n/routing";
 
 export async function generateMetadata({
@@ -27,34 +29,13 @@ export default async function SellPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("sell");
-  const tHeader = await getTranslations("header");
+  const home = getHomepage(locale);
   const user = await getCurrentUser();
   const startHref = user ? "/sell/new" : "/signin?next=/sell/new";
 
   return (
-    <main className="min-h-[100dvh] pb-24">
-      <div className="container-px pt-10">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-          <Link href="/" aria-label={tHeader("ariaHome")}>
-            <Wordmark tone="ink" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <Link
-              href="/listings"
-              className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-            >
-              {tHeader("browse")}
-            </Link>
-            <Link
-              href={user ? "/account" : "/signin"}
-              className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-            >
-              {user ? tHeader("account") : tHeader("signIn")}
-            </Link>
-          </div>
-        </div>
-      </div>
+    <main className="min-h-[100dvh]">
+      <SiteHeader nav={home.nav} />
 
       <section className="container-px mt-16 sm:mt-24">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-6">
@@ -127,6 +108,11 @@ export default async function SellPage({
           </div>
         </div>
       </section>
+
+      <div className="mt-24">
+        <BottomCtaStrip />
+      </div>
+      <SiteFooter data={home.footer} />
     </main>
   );
 }

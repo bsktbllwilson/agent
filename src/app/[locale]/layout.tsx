@@ -69,15 +69,20 @@ export default async function LocaleLayout({
   return (
     <html lang={locale === "zh" ? "zh-CN" : "en"}>
       <head>
-        {/* Adobe Typekit — Please Display VF + Proxima Nova (Latin) */}
+        {/* Adobe Typekit — Please Display VF (display serif) + Proxima Nova */}
         <link rel="stylesheet" href="https://use.typekit.net/cub1hgl.css" />
-        {/* Noto Sans SC — Simplified Chinese fallback */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        {/* Mulish — Modern Gothic substitute (body sans + chunky display) */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800;900&display=swap"
+        />
+        {/* Noto Sans SC — Simplified Chinese fallback */}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap"

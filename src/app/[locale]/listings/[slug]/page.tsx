@@ -1,12 +1,12 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getListingBySlug } from "@/lib/listings";
 import { getSavedListingIds } from "@/lib/saved-listings";
 import { getCurrentUser } from "@/lib/auth";
+import { getHomepage } from "@/lib/content";
 import {
   formatPrice,
   formatRevenue,
@@ -14,8 +14,9 @@ import {
   formatYears,
   formatEstablished,
 } from "@/lib/format";
-import { Wordmark } from "@/components/Wordmark";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SiteHeader } from "@/components/sections/SiteHeader";
+import { SiteFooter } from "@/components/sections/SiteFooter";
+import { BottomCtaStrip } from "@/components/sections/BottomCtaStrip";
 import { SaveListingButton } from "@/components/primitives/SaveListingButton";
 import { ContactSellerForm } from "@/components/primitives/ContactSellerForm";
 import { ViewTracker } from "@/components/primitives/ViewTracker";
@@ -53,7 +54,7 @@ export default async function ListingDetailPage({
   const { slug, locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("listingDetail");
-  const tHeader = await getTranslations("header");
+  const home = getHomepage(locale);
   const [listing, user] = await Promise.all([
     getListingBySlug(slug),
     getCurrentUser(),
@@ -81,27 +82,21 @@ export default async function ListingDetailPage({
     listing.p_and_l_url;
 
   return (
-    <main className="min-h-[100dvh] pb-24">
+    <main className="min-h-[100dvh]">
       <ViewTracker listingId={listing.id} />
-      <div className="container-px pt-10">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-          <Link href="/" aria-label={tHeader("ariaHome")}>
-            <Wordmark tone="ink" />
+      <SiteHeader nav={home.nav} />
+      <div className="container-px mt-2">
+        <div className="mx-auto flex max-w-[1440px] justify-end">
+          <Link
+            href="/listings"
+            className="text-sm font-medium text-ink/70 underline-offset-4 hover:underline"
+          >
+            ← {t("allListings")}
           </Link>
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <Link
-              href="/listings"
-              className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-            >
-              <ArrowLeft aria-hidden className="size-4" />
-              {t("allListings")}
-            </Link>
-          </div>
         </div>
       </div>
 
-      <div className="container-px mt-10">
+      <div className="container-px mt-6">
         <div className="mx-auto grid max-w-[1440px] gap-10 lg:grid-cols-[2fr_1fr]">
           <div>
             <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[2rem] bg-ink/5">
@@ -272,6 +267,11 @@ export default async function ListingDetailPage({
           </aside>
         </div>
       </div>
+
+      <div className="mt-24">
+        <BottomCtaStrip />
+      </div>
+      <SiteFooter data={home.footer} />
     </main>
   );
 }

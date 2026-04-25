@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/Wordmark";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import type { Homepage } from "../../../content/schema";
 
 type Data = Homepage["footer"];
@@ -7,25 +8,37 @@ type Data = Homepage["footer"];
 export function SiteFooter({ data }: { data: Data }) {
   const t = useTranslations("footer");
   return (
-    <footer className="border-t border-ink/10 pt-16 pb-10 container-px">
-      <div className="mx-auto max-w-[1440px]">
-        <div className="grid gap-12 lg:grid-cols-[1.2fr_2fr]">
-          <div className="flex flex-col gap-4">
-            <Wordmark tone="ink" className="text-[1.625rem]" />
-            <p className="max-w-sm text-base text-ink/70">{data.tagline}</p>
+    <footer className="bg-ink text-cream">
+      <div className="mx-auto max-w-[1589px] px-6 sm:px-10">
+        <div className="grid gap-10 pt-16 pb-10 md:grid-cols-[1fr_auto] md:gap-16 lg:gap-20">
+          {/* Language + utility (left) */}
+          <div className="flex flex-col items-start gap-6">
+            <LanguageSwitcher tone="cream" />
+            <p className="max-w-sm text-sm text-cream/60">{data.tagline}</p>
+            <div className="flex gap-5 text-sm text-cream/60">
+              <a href="#privacy" className="hover:text-cream">
+                {t("privacy")}
+              </a>
+              <a href="#terms" className="hover:text-cream">
+                {t("terms")}
+              </a>
+              <span>{data.legal}</span>
+            </div>
           </div>
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
+
+          {/* Columns (right) */}
+          <div className="grid gap-10 sm:grid-cols-3">
             {data.columns.map((col) => (
               <div key={col.heading}>
-                <h4 className="text-sm font-medium uppercase tracking-[0.12em] text-ink/60">
+                <h4 className="text-xs font-semibold uppercase tracking-[0.16em] text-cream/50">
                   {col.heading}
                 </h4>
-                <ul className="mt-4 flex flex-col gap-3">
+                <ul className="mt-4 flex flex-col gap-2.5">
                   {col.links.map((l) => (
-                    <li key={l.href}>
+                    <li key={`${col.heading}-${l.href}-${l.label}`}>
                       <a
                         href={l.href}
-                        className="text-base text-ink transition-colors hover:text-orange"
+                        className="text-base text-cream transition-colors hover:text-orange"
                       >
                         {l.label}
                       </a>
@@ -36,16 +49,14 @@ export function SiteFooter({ data }: { data: Data }) {
             ))}
           </div>
         </div>
-        <div className="mt-14 flex flex-col items-start justify-between gap-3 border-t border-ink/10 pt-6 text-sm text-ink/60 sm:flex-row">
-          <span>{data.legal}</span>
-          <div className="flex gap-5">
-            <a href="#privacy" className="hover:text-ink">
-              {t("privacy")}
-            </a>
-            <a href="#terms" className="hover:text-ink">
-              {t("terms")}
-            </a>
-          </div>
+
+        {/* Giant wordmark spanning full width */}
+        <div className="overflow-hidden pb-6 pt-4">
+          <Wordmark
+            tone="cream"
+            size="giant"
+            className="block w-full select-none"
+          />
         </div>
       </div>
     </footer>

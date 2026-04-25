@@ -8,6 +8,7 @@ import { BuySellSplit } from "@/components/sections/BuySellSplit";
 import { StatsBand } from "@/components/sections/StatsBand";
 import { PartnerLogos } from "@/components/sections/PartnerLogos";
 import { Subscribe } from "@/components/sections/Subscribe";
+import { BottomCtaStrip } from "@/components/sections/BottomCtaStrip";
 import { SiteFooter } from "@/components/sections/SiteFooter";
 import type { Locale } from "@/i18n/routing";
 
@@ -32,6 +33,7 @@ export default async function HomePage({
       <StatsBand data={content.stats} />
       <PartnerLogos data={content.partners} />
       <Subscribe data={content.subscribe} />
+      <BottomCtaStrip />
       <SiteFooter data={content.footer} />
     </main>
   );

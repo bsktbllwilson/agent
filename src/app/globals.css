@@ -9,7 +9,8 @@
   --color-ink-muted: rgba(0, 0, 0, 0.5);
 
   --font-display: "please-display-vf", Georgia, "Times New Roman", serif;
-  --font-body: "proxima-nova", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "modern-gothic", "Mulish", "proxima-nova", "Helvetica Neue", Arial, sans-serif;
+  --font-chunky: "modern-gothic", "Mulish", "Inter", system-ui, sans-serif;
 
   --radius-card: 1.5rem;
   --radius-pill: 3.125rem;
@@ -75,6 +76,10 @@ body {
   font-family: var(--font-body);
   font-size: clamp(1.125rem, 1.8vw, 1.875rem);
   line-height: 1.4;
+}
+
+@utility font-chunky {
+  font-family: var(--font-chunky);
 }
 
 /* Respect reduced motion globally */

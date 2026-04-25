@@ -1,10 +1,9 @@
 {
   "nav": [
-    { "label": "Browse Listings", "href": "/listings" },
+    { "label": "Buy Business", "href": "/listings" },
     { "label": "Sell Business", "href": "/sell" },
-    { "label": "Pro Partners", "href": "#partners" },
-    { "label": "The Playbook", "href": "#playbook" },
-    { "label": "Who We Are", "href": "#about" }
+    { "label": "Playbooks", "href": "/playbook" },
+    { "label": "Who We Are", "href": "/about" }
   ],
   "hero": {
     "headline": "Your Seat at The Table Starts Here",
@@ -154,31 +153,30 @@
       {
         "heading": "Marketplace",
         "links": [
-          { "label": "Buy a Business", "href": "#buy" },
-          { "label": "Sell a Business", "href": "#sell" },
-          { "label": "Browse Listings", "href": "#listings" },
-          { "label": "Pro Partners", "href": "#partners" }
+          { "label": "Buy A Business", "href": "/listings" },
+          { "label": "Sell A Business", "href": "/sell" },
+          { "label": "Listing Heatmap", "href": "/listings#heatmap" }
         ]
       },
       {
         "heading": "Resources",
         "links": [
-          { "label": "The Playbook", "href": "#playbook" },
-          { "label": "Market Insights", "href": "#insights" },
-          { "label": "Valuation Tool", "href": "#valuation" },
-          { "label": "FAQ", "href": "#faq" }
+          { "label": "Guides & Playbooks", "href": "/playbook" },
+          { "label": "Market Data", "href": "/playbook#market-data" },
+          { "label": "Address Book", "href": "/yellow-pages" },
+          { "label": "Tools & Calculator", "href": "/tools" }
         ]
       },
       {
         "heading": "Company",
         "links": [
-          { "label": "Who We Are", "href": "#about" },
-          { "label": "Careers", "href": "#careers" },
-          { "label": "Press", "href": "#press" },
-          { "label": "Contact", "href": "#contact" }
+          { "label": "Who We Are", "href": "/about" },
+          { "label": "Become A Member", "href": "/membership" },
+          { "label": "Become A Partner", "href": "/partners/apply" },
+          { "label": "FAQs", "href": "/membership#faqs" }
         ]
       }
     ],
-    "legal": "© 2026 Pass The Plate. All rights reserved."
+    "legal": "© 2026 Pass The Plate"
   }
 }

@@ -22,6 +22,12 @@
     "privacy": "Privacy",
     "terms": "Terms"
   },
+  "bottomCta": {
+    "buyTitle": "Find A Business You're Hungry For",
+    "buyCta": "Buy A Business",
+    "sellTitle": "Pass The Plate To The Right Hands",
+    "sellCta": "Sell A Business"
+  },
   "hero": {
     "find": "Find"
   },

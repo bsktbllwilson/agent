@@ -4,9 +4,11 @@ import { Link } from "@/i18n/navigation";
 import { getPublishedListings, getFilterFacets } from "@/lib/listings";
 import { getSavedListingIds } from "@/lib/saved-listings";
 import { getCurrentUser } from "@/lib/auth";
+import { getHomepage } from "@/lib/content";
 import { ListingPreviewCard } from "@/components/primitives/ListingPreviewCard";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { Wordmark } from "@/components/Wordmark";
+import { SiteHeader } from "@/components/sections/SiteHeader";
+import { SiteFooter } from "@/components/sections/SiteFooter";
+import { BottomCtaStrip } from "@/components/sections/BottomCtaStrip";
 import type { ListingFilters } from "@/lib/types";
 import type { Locale } from "@/i18n/routing";
 
@@ -45,7 +47,7 @@ export default async function ListingsPage({
   setRequestLocale(locale);
   const sp = await searchParams;
   const t = await getTranslations("listings");
-  const tHeader = await getTranslations("header");
+  const home = getHomepage(locale);
   const filters: ListingFilters = {
     cuisine: sp.cuisine,
     subtype: sp.subtype,
@@ -65,23 +67,8 @@ export default async function ListingsPage({
   const hasFilters = Object.values(sp).some((v) => v != null && v !== "");
 
   return (
-    <main className="min-h-[100dvh] pb-24">
-      <div className="container-px pt-10">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-          <Link href="/" aria-label={tHeader("ariaHome")}>
-            <Wordmark tone="ink" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <Link
-              href={user ? "/account" : "/signin"}
-              className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
-            >
-              {user ? tHeader("account") : tHeader("signIn")}
-            </Link>
-          </div>
-        </div>
-      </div>
+    <main className="min-h-[100dvh]">
+      <SiteHeader nav={home.nav} />
 
       <section className="container-px mt-12">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-4">
@@ -122,6 +109,11 @@ export default async function ListingsPage({
           )}
         </div>
       </section>
+
+      <div className="mt-24">
+        <BottomCtaStrip />
+      </div>
+      <SiteFooter data={home.footer} />
     </main>
   );
 }

@@ -1,10 +1,9 @@
 {
   "nav": [
-    { "label": "浏览企业", "href": "/listings" },
+    { "label": "买入企业", "href": "/listings" },
     { "label": "出售企业", "href": "/sell" },
-    { "label": "专业伙伴", "href": "#partners" },
-    { "label": "操作手册", "href": "#playbook" },
-    { "label": "关于我们", "href": "#about" }
+    { "label": "操作手册", "href": "/playbook" },
+    { "label": "关于我们", "href": "/about" }
   ],
   "hero": {
     "headline": "您餐桌上的位置,从这里开始",
@@ -154,31 +153,30 @@
       {
         "heading": "并购平台",
         "links": [
-          { "label": "买入企业", "href": "#buy" },
-          { "label": "出售企业", "href": "#sell" },
-          { "label": "浏览房源", "href": "#listings" },
-          { "label": "专业伙伴", "href": "#partners" }
+          { "label": "买入企业", "href": "/listings" },
+          { "label": "出售企业", "href": "/sell" },
+          { "label": "热门地段地图", "href": "/listings#heatmap" }
         ]
       },
       {
         "heading": "资源中心",
         "links": [
-          { "label": "操作手册", "href": "#playbook" },
-          { "label": "市场洞察", "href": "#insights" },
-          { "label": "估值工具", "href": "#valuation" },
-          { "label": "常见问题", "href": "#faq" }
+          { "label": "指南与操作手册", "href": "/playbook" },
+          { "label": "市场数据", "href": "/playbook#market-data" },
+          { "label": "通讯录", "href": "/yellow-pages" },
+          { "label": "工具与计算器", "href": "/tools" }
         ]
       },
       {
         "heading": "关于公司",
         "links": [
-          { "label": "关于我们", "href": "#about" },
-          { "label": "招聘", "href": "#careers" },
-          { "label": "媒体报道", "href": "#press" },
-          { "label": "联系方式", "href": "#contact" }
+          { "label": "关于我们", "href": "/about" },
+          { "label": "成为会员", "href": "/membership" },
+          { "label": "成为合作伙伴", "href": "/partners/apply" },
+          { "label": "常见问题", "href": "/membership#faqs" }
         ]
       }
     ],
-    "legal": "© 2026 Pass The Plate. 保留所有权利。"
+    "legal": "© 2026 Pass The Plate"
   }
 }

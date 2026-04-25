@@ -22,6 +22,12 @@
     "privacy": "隐私政策",
     "terms": "服务条款"
   },
+  "bottomCta": {
+    "buyTitle": "寻找您心仪的企业",
+    "buyCta": "买入企业",
+    "sellTitle": "用心传承您的事业",
+    "sellCta": "出售企业"
+  },
   "hero": {
     "find": "搜索"
   },
