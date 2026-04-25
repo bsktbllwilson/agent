@@ -1,6 +1,7 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { Bell, Check } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { requireSignedIn, getCurrentUser, getRole } from "@/lib/auth";
 import { getSavedListings, getSavedListingIds } from "@/lib/saved-listings";
 import {
@@ -13,13 +14,33 @@ import {
 } from "@/lib/notification-actions";
 import { ListingPreviewCard } from "@/components/primitives/ListingPreviewCard";
 import { Wordmark } from "@/components/Wordmark";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { signOut } from "@/lib/actions";
+import type { Locale } from "@/i18n/routing";
 
-export const metadata: Metadata = { title: "Your Account — Pass The Plate" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "account" });
+  return { title: t("metaTitle") };
+}
+
 export const dynamic = "force-dynamic";
 
-export default async function AccountPage() {
+export default async function AccountPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   await requireSignedIn();
+  const t = await getTranslations("account");
+  const tHeader = await getTranslations("header");
+  const dateLocale = locale === "zh" ? "zh-CN" : "en-US";
   const [user, role, saved, savedIds, notifications, unread] =
     await Promise.all([
       getCurrentUser(),
@@ -32,40 +53,41 @@ export default async function AccountPage() {
 
   const firstName =
     (user?.user_metadata?.first_name as string | undefined) ??
-    (user?.email?.split("@")[0] ?? "there");
+    (user?.email?.split("@")[0] ?? t("guestName"));
 
   return (
     <main className="min-h-[100dvh] pb-24">
       <div className="container-px pt-10">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-          <Link href="/" aria-label="Pass The Plate home">
+          <Link href="/" aria-label={tHeader("ariaHome")}>
             <Wordmark tone="ink" />
           </Link>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <Link
               href="/listings"
               className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
             >
-              Browse
+              {t("browse")}
             </Link>
             <Link
               href="/sell/listings"
               className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
             >
-              Sell
+              {t("sell")}
             </Link>
             <Link
               href="/account/settings"
               className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
             >
-              Settings
+              {t("settings")}
             </Link>
             {role === "admin" && (
               <Link
                 href="/admin"
                 className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
               >
-                Admin
+                {t("admin")}
               </Link>
             )}
             <form action={signOut}>
@@ -73,7 +95,7 @@ export default async function AccountPage() {
                 type="submit"
                 className="rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
               >
-                Sign out
+                {t("signOut")}
               </button>
             </form>
           </div>
@@ -83,7 +105,7 @@ export default async function AccountPage() {
       <section className="container-px mt-12">
         <div className="mx-auto max-w-[1440px]">
           <h1 className="text-hero text-ink">
-            Hey, <span className="italic">{firstName}</span>
+            {t("greeting")} <span className="italic">{firstName}</span>
           </h1>
           <div className="mt-4 flex flex-wrap gap-2 text-sm text-ink/70">
             <span className="rounded-full border border-ink/15 px-3 py-1">
@@ -104,10 +126,10 @@ export default async function AccountPage() {
             <div className="flex items-end justify-between gap-4">
               <h2 className="flex items-center gap-3 font-display text-3xl text-ink sm:text-4xl">
                 <Bell aria-hidden className="size-7 text-orange" />
-                Activity
+                {t("activity")}
                 {unread > 0 && (
                   <span className="rounded-full bg-orange px-2.5 py-1 text-xs font-medium text-cream">
-                    {unread} new
+                    {t("newCount", { count: unread })}
                   </span>
                 )}
               </h2>
@@ -117,7 +139,7 @@ export default async function AccountPage() {
                     type="submit"
                     className="rounded-full border border-ink/15 px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
                   >
-                    Mark all read
+                    {t("markAllRead")}
                   </button>
                 </form>
               )}
@@ -151,7 +173,7 @@ export default async function AccountPage() {
                         )}
                         <div className="mt-2 flex items-center gap-3 text-xs text-ink/50">
                           <span>
-                            {new Date(n.created_at).toLocaleString("en-US", {
+                            {new Date(n.created_at).toLocaleString(dateLocale, {
                               month: "short",
                               day: "numeric",
                               hour: "numeric",
@@ -163,7 +185,7 @@ export default async function AccountPage() {
                               href={n.href}
                               className="font-medium text-ink underline-offset-4 hover:underline"
                             >
-                              Open →
+                              {t("open")}
                             </Link>
                           )}
                         </div>
@@ -172,7 +194,7 @@ export default async function AccountPage() {
                         <form action={markRead}>
                           <button
                             type="submit"
-                            aria-label="Mark read"
+                            aria-label={t("markRead")}
                             className="inline-flex size-8 items-center justify-center rounded-full border border-ink/15 text-ink/60 transition-colors hover:border-ink hover:text-ink"
                           >
                             <Check aria-hidden className="size-4" />
@@ -192,26 +214,24 @@ export default async function AccountPage() {
         <div className="mx-auto max-w-[1440px]">
           <div className="flex items-end justify-between gap-4">
             <h2 className="font-display text-3xl text-ink sm:text-4xl">
-              Saved listings
+              {t("savedListings")}
             </h2>
             <span className="text-sm text-ink/60">
-              {saved.length} {saved.length === 1 ? "saved" : "saved"}
+              {t("savedCount", { count: saved.length })}
             </span>
           </div>
 
           {saved.length === 0 ? (
             <div className="mt-8 rounded-[1.5rem] border border-ink/10 bg-white p-12 text-center">
               <h3 className="font-display text-2xl text-ink">
-                Nothing saved yet
+                {t("emptySavedHeading")}
               </h3>
-              <p className="mt-2 text-ink/70">
-                Tap the heart on any listing to save it for later.
-              </p>
+              <p className="mt-2 text-ink/70">{t("emptySavedBody")}</p>
               <Link
                 href="/listings"
                 className="mt-6 inline-flex rounded-full bg-orange px-6 py-3 text-sm font-medium text-cream transition-colors hover:bg-[rgb(210,68,28)]"
               >
-                Browse listings
+                {t("browseListings")}
               </Link>
             </div>
           ) : (

@@ -1,18 +1,24 @@
 "use client";
 
-import Link from "next/link";
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 import { Wordmark } from "@/components/Wordmark";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { routing, type Locale } from "@/i18n/routing";
 
-const DEFAULT_NEXT = "/account";
+function defaultNext(locale: Locale): string {
+  return locale === routing.defaultLocale ? "/account" : `/${locale}/account`;
+}
 
-function sanitizeNext(raw: string | null): string {
-  if (!raw) return DEFAULT_NEXT;
+function sanitizeNext(raw: string | null, locale: Locale): string {
+  const fallback = defaultNext(locale);
+  if (!raw) return fallback;
   // Only allow same-origin, root-relative paths — prevents open-redirect.
-  if (!raw.startsWith("/") || raw.startsWith("//")) return DEFAULT_NEXT;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return fallback;
   return raw;
 }
 
@@ -25,8 +31,10 @@ export default function SignInPage() {
 }
 
 function SignInInner() {
+  const t = useTranslations("signin");
+  const locale = useLocale() as Locale;
   const params = useSearchParams();
-  const next = sanitizeNext(params.get("next"));
+  const next = sanitizeNext(params.get("next"), locale);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -34,7 +42,7 @@ function SignInInner() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!/.+@.+\..+/.test(email)) {
-      toast.error("Enter a valid email.");
+      toast.error(t("errorInvalid"));
       return;
     }
     setBusy(true);
@@ -47,9 +55,9 @@ function SignInInner() {
       });
       if (error) throw error;
       setSent(true);
-      toast.success("Magic link sent — check your inbox.");
+      toast.success(t("successToast"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Sign-in failed.");
+      toast.error(err instanceof Error ? err.message : t("errorGeneric"));
     } finally {
       setBusy(false);
     }
@@ -58,25 +66,30 @@ function SignInInner() {
   return (
     <main className="min-h-[100dvh] container-px flex flex-col items-center justify-center py-20">
       <div className="w-full max-w-md">
-        <Link href="/" className="inline-block">
-          <Wordmark tone="ink" className="text-2xl" />
-        </Link>
-        <h1 className="mt-8 font-display text-4xl leading-tight">Sign in</h1>
-        <p className="mt-2 text-ink/70">
-          We&apos;ll email you a one-time link — no password required.
-        </p>
+        <div className="flex items-center justify-between gap-4">
+          <Link href="/" className="inline-block">
+            <Wordmark tone="ink" className="text-2xl" />
+          </Link>
+          <LanguageSwitcher />
+        </div>
+        <h1 className="mt-8 font-display text-4xl leading-tight">
+          {t("title")}
+        </h1>
+        <p className="mt-2 text-ink/70">{t("subhead")}</p>
 
         {sent ? (
           <div className="mt-8 rounded-[1.5rem] border border-ink/10 bg-cream/60 p-6">
             <p className="text-ink">
-              Magic link sent to <strong>{email}</strong>. Open it on this
-              device.
+              {t.rich("sentBody", {
+                email,
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
           </div>
         ) : (
           <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-3">
             <label className="flex flex-col gap-2">
-              <span className="text-sm text-ink/70">Email</span>
+              <span className="text-sm text-ink/70">{t("emailLabel")}</span>
               <input
                 type="email"
                 value={email}
@@ -84,7 +97,7 @@ function SignInInner() {
                 required
                 autoFocus
                 className="rounded-full border border-ink/15 bg-white px-5 py-4 text-base outline-none focus:border-ink"
-                placeholder="you@example.com"
+                placeholder={t("emailPlaceholder")}
               />
             </label>
             <button
@@ -92,7 +105,7 @@ function SignInInner() {
               disabled={busy}
               className="mt-2 inline-flex items-center justify-center rounded-full bg-orange px-8 py-4 font-medium text-cream transition-colors hover:bg-[rgb(210,68,28)] disabled:opacity-60"
             >
-              {busy ? "Sending…" : "Email me a link"}
+              {busy ? t("submitting") : t("submit")}
             </button>
           </form>
         )}
@@ -100,3 +113,4 @@ function SignInInner() {
     </main>
   );
 }
+

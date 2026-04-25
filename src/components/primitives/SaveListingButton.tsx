@@ -2,6 +2,7 @@
 
 import { Heart } from "lucide-react";
 import { useOptimistic, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { saveListing, unsaveListing } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ export function SaveListingButton({
   variant = "overlay",
   size = "md",
 }: Props) {
+  const t = useTranslations("saveListing");
   const [optimistic, setOptimistic] = useOptimistic(
     initialSaved,
     (_prev, next: boolean) => next,
@@ -57,7 +59,7 @@ export function SaveListingButton({
   return (
     <button
       type="button"
-      aria-label={optimistic ? "Unsave listing" : "Save listing"}
+      aria-label={optimistic ? t("unsave") : t("save")}
       aria-pressed={optimistic}
       disabled={pending}
       onClick={handleClick}

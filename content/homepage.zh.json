@@ -1,0 +1,184 @@
+{
+  "nav": [
+    { "label": "浏览企业", "href": "/listings" },
+    { "label": "出售企业", "href": "/sell" },
+    { "label": "专业伙伴", "href": "#partners" },
+    { "label": "操作手册", "href": "#playbook" },
+    { "label": "关于我们", "href": "#about" }
+  ],
+  "hero": {
+    "headline": "您餐桌上的位置,从这里开始",
+    "italicWord": "位置",
+    "subhead": "首个面向 2400 亿美元亚洲餐饮代际交接的并购平台",
+    "searchPlaceholders": {
+      "location": "城市,州",
+      "industry": "行业"
+    },
+    "locationOptions": [
+      "纽约,NY",
+      "洛杉矶,CA",
+      "旧金山,CA",
+      "休斯顿,TX",
+      "芝加哥,IL",
+      "西雅图,WA",
+      "亚特兰大,GA",
+      "檀香山,HI"
+    ],
+    "industryOptions": [
+      "餐厅",
+      "超市",
+      "食品制造",
+      "烘焙与甜品",
+      "饮品",
+      "宴会餐饮"
+    ]
+  },
+  "trendingHotspots": {
+    "heading": "热门企业",
+    "cta": { "label": "更多房源", "href": "#listings" },
+    "items": [
+      {
+        "id": "golden-palace",
+        "name": "金宫点心楼",
+        "city": "旧金山",
+        "state": "CA",
+        "price": "185 万美元",
+        "category": "餐厅",
+        "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "ume-ramen",
+        "name": "梅屋拉面",
+        "city": "纽约",
+        "state": "NY",
+        "price": "120 万美元",
+        "category": "餐厅",
+        "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "hansen-grocer",
+        "name": "汉森亚洲超市",
+        "city": "西雅图",
+        "state": "WA",
+        "price": "340 万美元",
+        "category": "超市",
+        "image": "https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "saigon-bakery",
+        "name": "西贡日出烘焙",
+        "city": "休斯顿",
+        "state": "TX",
+        "price": "72 万美元",
+        "category": "烘焙",
+        "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80"
+      }
+    ]
+  },
+  "categories": {
+    "heading": "品类齐全",
+    "italicWord": "齐全",
+    "subhead": "覆盖亚洲餐饮全产业链的并购机会。",
+    "items": [
+      {
+        "slug": "restaurants",
+        "label": "餐厅",
+        "image": "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1200&q=80",
+        "tagline": "全服务、快休闲及主题概念餐厅。"
+      },
+      {
+        "slug": "grocery",
+        "label": "超市与特色零售",
+        "image": "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=1200&q=80",
+        "tagline": "社区超市、特色食材与进口商业。"
+      },
+      {
+        "slug": "manufacturing",
+        "label": "食品制造",
+        "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+        "tagline": "中央厨房、消费品牌及代工厂。"
+      }
+    ]
+  },
+  "buySell": {
+    "buy": {
+      "eyebrow": "买家专区",
+      "headline": "找到您的下一家厨房",
+      "italicWord": "厨房",
+      "body": "从旗舰餐厅到区域制造厂 — 发现财务透明、交易条款友好的优质企业。",
+      "cta": { "label": "买入企业", "href": "/listings" },
+      "image": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1400&q=80"
+    },
+    "sell": {
+      "eyebrow": "卖家专区",
+      "headline": "用心传承您的事业",
+      "italicWord": "用心",
+      "body": "结识尊重您的配方、团队与传承的买家。我们处理尽职调查、引荐与交易结构,从初次接洽到顺利交割。",
+      "cta": { "label": "出售企业", "href": "/sell" },
+      "image": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1400&q=80"
+    }
+  },
+  "stats": {
+    "heading": "长期被忽视的市场",
+    "italicWord": "忽视",
+    "items": [
+      { "value": 240, "prefix": "$", "suffix": "B+", "label": "亚洲餐饮市场规模" },
+      { "value": 68, "suffix": "%", "label": "业主接近退休年龄" },
+      { "value": 12500, "suffix": "+", "label": "在售企业数量" },
+      { "value": 42, "suffix": "", "label": "首份意向平均天数" }
+    ]
+  },
+  "partners": {
+    "heading": "值得信赖的伙伴",
+    "italicWord": "信赖",
+    "items": [
+      { "name": "Momofuku Capital", "href": "#" },
+      { "name": "East Gate Ventures", "href": "#" },
+      { "name": "Lotus Partners", "href": "#" },
+      { "name": "Tiger Bridge", "href": "#" },
+      { "name": "Pearl Harbor Advisors", "href": "#" },
+      { "name": "Kirin & Co.", "href": "#" }
+    ]
+  },
+  "subscribe": {
+    "heading": "找到您的下一笔好交易",
+    "italicWord": "好交易",
+    "body": "新房源、市场洞察与并购情报 — 每周直达邮箱。",
+    "placeholder": "您的邮箱",
+    "cta": "订阅",
+    "success": "感谢订阅 — 我们将很快与您联系。"
+  },
+  "footer": {
+    "tagline": "首个亚洲餐饮代际交接并购平台。",
+    "columns": [
+      {
+        "heading": "并购平台",
+        "links": [
+          { "label": "买入企业", "href": "#buy" },
+          { "label": "出售企业", "href": "#sell" },
+          { "label": "浏览房源", "href": "#listings" },
+          { "label": "专业伙伴", "href": "#partners" }
+        ]
+      },
+      {
+        "heading": "资源中心",
+        "links": [
+          { "label": "操作手册", "href": "#playbook" },
+          { "label": "市场洞察", "href": "#insights" },
+          { "label": "估值工具", "href": "#valuation" },
+          { "label": "常见问题", "href": "#faq" }
+        ]
+      },
+      {
+        "heading": "关于公司",
+        "links": [
+          { "label": "关于我们", "href": "#about" },
+          { "label": "招聘", "href": "#careers" },
+          { "label": "媒体报道", "href": "#press" },
+          { "label": "联系方式", "href": "#contact" }
+        ]
+      }
+    ],
+    "legal": "© 2026 Pass The Plate. 保留所有权利。"
+  }
+}
