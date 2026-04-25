@@ -283,5 +283,124 @@
     "bigDealBody": "Get in touch with our advisor for a complimentary consultation on your next venture.",
     "bigDealCta": "Get In Touch",
     "subscribed": "Thanks — we'll be in touch."
+  },
+  "membership": {
+    "metaTitle": "Become A Member — Pass The Plate",
+    "metaDescription": "Pick the plan that matches your appetite. From $0 First Bite to The Full Menu at $249/month.",
+    "heroTitle": "Pick Your Plan",
+    "heroBody": "Three ways to get serious about your next deal. Cancel anytime.",
+    "tiers": {
+      "freeName": "First Bite",
+      "freePrice": "$0",
+      "freeCadence": "/ Month",
+      "freeBody": "Browse the marketplace and explore market data on us. Perfect for tire-kicking.",
+      "freeBullet1": "Access to listings preview",
+      "freeBullet2": "Limited contacts per month",
+      "freeBullet3": "One complimentary valuation per membership",
+      "freeCta": "Start Plan",
+      "midName": "Chef's Table",
+      "midPrice": "$99",
+      "midCadence": "/ Month",
+      "midBody": "For active buyers and sellers ready to engage. Direct seller intros and an advisor on call.",
+      "midBullet1": "Access to all live listings",
+      "midBullet2": "All vetted contacts",
+      "midBullet3": "Complimentary valuation",
+      "midBullet4": "Up to 60 minutes with an advisor",
+      "midBullet5": "Unlimited access to resources",
+      "midCta": "Start Plan",
+      "topName": "The Full Menu",
+      "topPrice": "$249",
+      "topCadence": "/ Month",
+      "topBody": "White-glove access for serious operators. Dedicated advisor and unlimited support.",
+      "topBullet1": "Unlimited listings access",
+      "topBullet2": "Unlimited contacts",
+      "topBullet3": "Complimentary valuations, always",
+      "topBullet4": "Dedicated advisor",
+      "topBullet5": "Unlimited access to resources",
+      "topCta": "Start Plan"
+    },
+    "faqsHeading": "FAQs",
+    "faqs": [
+      {
+        "q": "What's included in my Pass The Plate plan?",
+        "a": "Each plan unlocks a different level of marketplace access — from preview-only on First Bite, to unlimited listings and a dedicated advisor on The Full Menu. See the bullets on each tier above for the specifics."
+      },
+      {
+        "q": "How can I upgrade, downgrade, or cancel my subscription?",
+        "a": "Anytime from your account settings. Upgrades take effect immediately; downgrades and cancellations apply at the end of your current billing cycle."
+      },
+      {
+        "q": "How can I get in touch with a sales support team?",
+        "a": "Email hello@passtheplate.store or use the contact form in your account dashboard. We typically respond within one business day."
+      },
+      {
+        "q": "Where can I find live tutorials and documentation?",
+        "a": "All members get access to The Playbook with step-by-step guides. Live walkthroughs are scheduled monthly — check your inbox for invites."
+      },
+      {
+        "q": "How do I troubleshoot my account if I'm having issues logging in?",
+        "a": "Try requesting a new magic link from /signin. If that doesn't work, email support@passtheplate.store with the email you registered with."
+      },
+      {
+        "q": "How do I optimize my account so I get access to the right resources?",
+        "a": "Fill out your profile completely (interests, deal size, location). Our system surfaces relevant listings and partner intros based on what you tell us."
+      },
+      {
+        "q": "Where will my information be used?",
+        "a": "Only to match you with relevant deals and partners. We don't sell data and we anonymize buyer identities until a seller approves the intro."
+      },
+      {
+        "q": "Who can benefit from a Pass The Plate plan?",
+        "a": "Buyers, sellers, advisors, attorneys, and lenders working in the Asian F&B space. If you're transacting in this market, there's a plan for you."
+      },
+      {
+        "q": "Can I disable monthly renewal?",
+        "a": "Yes — toggle off auto-renewal in account settings. You'll keep access until the end of the current billing cycle."
+      },
+      {
+        "q": "I'd like a personal broker — how can I find one that fits my needs?",
+        "a": "Chef's Table and Full Menu members get matched to a vetted broker based on cuisine, market, and deal size. We'll introduce within 48 hours."
+      },
+      {
+        "q": "What is the listing process like? How much will I need to pay?",
+        "a": "Listing is free — there's no upfront cost. We charge a 3–5% success fee only when your business sells."
+      },
+      {
+        "q": "What is the buying process like? Are there any additional fees?",
+        "a": "Free to browse and inquire. If we facilitate the deal end-to-end, we charge a buy-side fee on closing — disclosed before any commitment."
+      }
+    ]
+  },
+  "partner": {
+    "metaTitle": "Become A Partner — Pass The Plate",
+    "metaDescription": "Join the Pass The Plate partner network — brokers, attorneys, lenders, and advisors serving Asian F&B operators.",
+    "heroTitle": "Become a Partner",
+    "intro": "If you serve Asian F&B operators — bilingual brokers, immigration attorneys, SBA lenders, restaurant designers — we want to hear from you.",
+    "fields": {
+      "fullName": "Full Name",
+      "jobTitle": "Job Title",
+      "phone": "Phone No.",
+      "email": "Email",
+      "company": "Company",
+      "website": "Website",
+      "address": "Address",
+      "specialty": "Specialty",
+      "specialtyPlaceholder": "e.g. SBA lending, immigration law, restaurant design",
+      "referral": "Referral",
+      "referralPlaceholder": "Who referred you?",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about your practice and the operators you've helped."
+    },
+    "submit": "Submit Application",
+    "submitting": "Submitting…",
+    "success": "Application received — we'll be in touch within a week.",
+    "lookingForHeading": "Who We're Looking For",
+    "lookingForBody": "Bilingual specialists who have closed real deals in the Asian F&B space and treat operators like family — not transactions.",
+    "spec1Title": "Brokers & Advisors",
+    "spec1Body": "Cuisine-specific dealmakers who can read both sides of the table.",
+    "spec2Title": "Attorneys",
+    "spec2Body": "Immigration, lease, and M&A counsel licensed in operator hubs.",
+    "spec3Title": "Lenders",
+    "spec3Body": "SBA 7(a), commercial mortgage, and bridge financing experts."
   }
 }

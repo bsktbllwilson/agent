@@ -283,5 +283,124 @@
     "bigDealBody": "与我们的顾问免费咨询您的下一笔生意。",
     "bigDealCta": "立即联系",
     "subscribed": "感谢订阅 — 我们将很快与您联系。"
+  },
+  "membership": {
+    "metaTitle": "成为会员 — Pass The Plate",
+    "metaDescription": "选择适合您的方案 — 从 $0 入门到 $249/月 的全套服务。",
+    "heroTitle": "选择您的方案",
+    "heroBody": "三种方式认真推进您的下一笔交易。随时取消。",
+    "tiers": {
+      "freeName": "First Bite",
+      "freePrice": "$0",
+      "freeCadence": "/ 月",
+      "freeBody": "免费浏览市场,查看市场数据。适合初步了解。",
+      "freeBullet1": "房源预览访问",
+      "freeBullet2": "每月有限联系次数",
+      "freeBullet3": "每会员一次免费估值",
+      "freeCta": "开通方案",
+      "midName": "Chef's Table",
+      "midPrice": "$99",
+      "midCadence": "/ 月",
+      "midBody": "面向认真的买家与卖家。直接对接卖家,顾问待命。",
+      "midBullet1": "全部在售房源访问",
+      "midBullet2": "全部审核联系人",
+      "midBullet3": "免费估值",
+      "midBullet4": "最多 60 分钟顾问咨询",
+      "midBullet5": "无限资源访问",
+      "midCta": "开通方案",
+      "topName": "The Full Menu",
+      "topPrice": "$249",
+      "topCadence": "/ 月",
+      "topBody": "为资深经营者打造的贴身服务。专属顾问,无限支持。",
+      "topBullet1": "无限房源访问",
+      "topBullet2": "无限联系人",
+      "topBullet3": "始终免费估值",
+      "topBullet4": "专属顾问",
+      "topBullet5": "无限资源访问",
+      "topCta": "开通方案"
+    },
+    "faqsHeading": "常见问题",
+    "faqs": [
+      {
+        "q": "Pass The Plate 方案包含哪些内容?",
+        "a": "每种方案解锁不同级别的市场访问 — 从 First Bite 仅可预览,到 The Full Menu 包含无限房源与专属顾问。详见上方各方案说明。"
+      },
+      {
+        "q": "如何升级、降级或取消订阅?",
+        "a": "随时在账户设置中操作。升级立即生效;降级与取消将在当前账期结束后生效。"
+      },
+      {
+        "q": "如何联系销售支持团队?",
+        "a": "邮件 hello@passtheplate.store 或使用账户面板中的联系表单。一般一个工作日内回复。"
+      },
+      {
+        "q": "在哪里查看实时教程与文档?",
+        "a": "所有会员都可访问操作手册中的分步指南。每月安排实时演示,请查收邮件邀请。"
+      },
+      {
+        "q": "无法登录,如何排查账户问题?",
+        "a": "尝试在 /signin 重新申请登录链接。若仍无效,请邮件 support@passtheplate.store 并告知您注册的邮箱。"
+      },
+      {
+        "q": "如何优化账户以获得最相关的资源?",
+        "a": "完整填写您的资料(感兴趣的业务、交易规模、地区)。系统会据此推送相关房源与合作伙伴。"
+      },
+      {
+        "q": "我的信息将用于何处?",
+        "a": "仅用于为您匹配相关交易与合作伙伴。我们不出售数据,在卖家批准引荐前买家身份保持匿名。"
+      },
+      {
+        "q": "Pass The Plate 方案适合哪些人?",
+        "a": "买家、卖家、顾问、律师与贷款机构 — 凡在亚洲餐饮领域开展业务者皆可。"
+      },
+      {
+        "q": "可以关闭自动续费吗?",
+        "a": "可以 — 在账户设置中关闭自动续费。当前账期内仍可继续使用。"
+      },
+      {
+        "q": "我希望有专属经纪人,如何找到适合我的人选?",
+        "a": "Chef's Table 与 Full Menu 会员将根据菜系、市场与交易规模匹配审核经纪人,48 小时内完成引荐。"
+      },
+      {
+        "q": "上架流程如何?需要支付多少费用?",
+        "a": "上架免费 — 无任何预付费用。仅在企业成交时收取 3–5% 服务费。"
+      },
+      {
+        "q": "买入流程如何?是否有额外费用?",
+        "a": "浏览与询价免费。若我们全程协助交易,会向买方收取交割费用,任何承诺前会提前明确告知。"
+      }
+    ]
+  },
+  "partner": {
+    "metaTitle": "成为合作伙伴 — Pass The Plate",
+    "metaDescription": "加入 Pass The Plate 合作伙伴网络 — 服务亚洲餐饮经营者的经纪人、律师、贷款机构与顾问。",
+    "heroTitle": "成为合作伙伴",
+    "intro": "如果您服务亚洲餐饮经营者 — 双语经纪人、移民律师、SBA 贷款机构、餐厅设计师 — 我们期待您的加入。",
+    "fields": {
+      "fullName": "姓名",
+      "jobTitle": "职位",
+      "phone": "联系电话",
+      "email": "邮箱",
+      "company": "公司",
+      "website": "网站",
+      "address": "地址",
+      "specialty": "专长领域",
+      "specialtyPlaceholder": "例如:SBA 贷款、移民法律、餐厅设计",
+      "referral": "推荐人",
+      "referralPlaceholder": "由谁推荐?",
+      "bio": "个人简介",
+      "bioPlaceholder": "介绍您的业务,以及您曾经服务过的餐饮经营者。"
+    },
+    "submit": "提交申请",
+    "submitting": "提交中…",
+    "success": "申请已收到 — 我们将在一周内联系您。",
+    "lookingForHeading": "我们在寻找",
+    "lookingForBody": "在亚洲餐饮领域真正促成过交易,把经营者当作家人而非客户的双语专业人士。",
+    "spec1Title": "经纪人与顾问",
+    "spec1Body": "懂得菜系,能在交易双方之间架桥的成交者。",
+    "spec2Title": "律师",
+    "spec2Body": "在主要经营者聚集地区执业的移民、租约与并购律师。",
+    "spec3Title": "贷款机构",
+    "spec3Body": "SBA 7(a)、商业按揭与过桥融资专家。"
   }
 }
